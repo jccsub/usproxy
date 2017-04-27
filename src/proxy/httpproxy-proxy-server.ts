@@ -11,14 +11,13 @@ import {
 } from './proxy-listener';
 
 import {ProxyListeners} from './proxy-listeners';
-//import * as httpProxy from 'http-proxy';
+import * as httpProxy from 'http-proxy';
 import {WebServer} from '../webserver/web-server'
 import {ProxyContext} from './proxy-context';
 import {Log} from '../logger';
-//import * as http from 'http';
+import * as http from 'http';
 
-var http = require('http'),
-    httpProxy = require('http-proxy');
+//var httpProxy = require('http-proxy');
 
 var connect = require('connect');
 
@@ -66,18 +65,24 @@ export class HttpProxyProxyServer implements ProxyServer {
 
   private setupRequestListers() {
     this.proxy.on('proxyReq',(proxyReq , req , res )=> {
+      req.setEncoding(null);
       this.log.debug('proxy.on("proxyReq")');
       let context = new ProxyContext();
       context.request.body = '';
       (req as any).context = context;
       let dataAvailable = false;
-      proxyReq.on('data',(chunk) => {
-        this.log.debug('proxyReq.on("data"');
+      req.on('data',(chunk) => {
+        this.log.debug('proxyReq.on("data")');
         dataAvailable = true;
         context.request.body += chunk;
+
       });
-      proxyReq.on('end',() => {
+      req.on('end',() => {
         this.log.debug('proxyReq.on("end"');
+        context.request.url = req.url;
+        context.request.host = req.headers.host;
+        context.request.protocol = 'http';
+        context.request.method = req.method;
         this.listeners.requestProxyListeners.forEach((listener) => {
           listener.handleEvent(this.log, context);
         });
@@ -92,15 +97,15 @@ export class HttpProxyProxyServer implements ProxyServer {
         let dataAvailable = false;
         proxyRes.on('data', (chunk) => {
           this.log.debug('proxyRes.on("data")');
-          context.response.body += chunk;
+          context.response.body += chunk.toString('utf8');
         });
         proxyRes.on('end', () => {
           this.log.debug('proxyRes.on("end")');
+          context.response.headers = proxyRes.headers;
+          context.response.statusCode = proxyRes.statusCode;                     
           this.listeners.responseProxyListeners.forEach((listener) => {
             listener.handleEvent(this.log, context);
           });
-          context.response.headers = proxyRes.headers;
-          context.response.statusCode = proxyRes.statusCode;           
         });
       });
   }

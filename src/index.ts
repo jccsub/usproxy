@@ -80,12 +80,10 @@ class testResponseProxyListener extends ResponseProxyListener {
 log.debug("Adding testResponseProxyListener")
 proxyListeners.addListener(new testResponseProxyListener());
 
-proxyListeners.addResponseSelectAndReplace('.b','<div class="c">+ Trumpet</div>');
-proxyListeners.addResponseSelectAndReplace('.a','<div>JUST TESTING</div>');
-proxyListeners.addResponseSelectAndReplace('.c','<div>Did this replace</div>');
+proxyListeners.addResponseSelectAndReplace('#ctl00_Content_Login1_lblUserName','<label id="ctl00_Content_Login1_lblUserName" for="ctl00_Content_Login1_UserName" localizableLabel="Username">MyUserName</label>');
 
 var webServer = new ConnectWebServer(log);
-var proxyServer = new HttpProxyProxyServer(webServer,'http://localhost:9000', proxyListeners, log);
+var proxyServer = new HttpProxyProxyServer(webServer,'http://jccsub2web.newgen.corp', proxyListeners, log);
 
 
 

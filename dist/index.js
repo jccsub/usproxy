@@ -58,11 +58,9 @@ class testResponseProxyListener extends proxy_listener_1.ResponseProxyListener {
 }
 log.debug("Adding testResponseProxyListener");
 proxyListeners.addListener(new testResponseProxyListener());
-proxyListeners.addResponseSelectAndReplace('.b', '<div class="c">+ Trumpet</div>');
-proxyListeners.addResponseSelectAndReplace('.a', '<div>JUST TESTING</div>');
-proxyListeners.addResponseSelectAndReplace('.c', '<div>Did this replace</div>');
+proxyListeners.addResponseSelectAndReplace('#ctl00_Content_Login1_lblUserName', '<label id="ctl00_Content_Login1_lblUserName" for="ctl00_Content_Login1_UserName" localizableLabel="Username">MyUserName</label>');
 var webServer = new connect_web_server_1.ConnectWebServer(log);
-var proxyServer = new httpproxy_proxy_server_1.HttpProxyProxyServer(webServer, 'http://localhost:9000', proxyListeners, log);
+var proxyServer = new httpproxy_proxy_server_1.HttpProxyProxyServer(webServer, 'http://jccsub2web.newgen.corp', proxyListeners, log);
 http.createServer((req, res) => {
     log.debug('WEB SERVER RECEIVED REQUEST');
     res.writeHead(200, { 'Content-Type': 'text/html' });

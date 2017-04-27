@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const httpProxy = require("http-proxy");
 const proxy_context_1 = require("./proxy-context");
-//import * as http from 'http';
-var http = require('http'), httpProxy = require('http-proxy');
+//var httpProxy = require('http-proxy');
 var connect = require('connect');
 class HttpProxyProxyServer {
     constructor(webserver, target, listeners, log) {
@@ -38,18 +38,23 @@ class HttpProxyProxyServer {
     }
     setupRequestListers() {
         this.proxy.on('proxyReq', (proxyReq, req, res) => {
+            req.setEncoding(null);
             this.log.debug('proxy.on("proxyReq")');
             let context = new proxy_context_1.ProxyContext();
             context.request.body = '';
             req.context = context;
             let dataAvailable = false;
-            proxyReq.on('data', (chunk) => {
-                this.log.debug('proxyReq.on("data"');
+            req.on('data', (chunk) => {
+                this.log.debug('proxyReq.on("data")');
                 dataAvailable = true;
                 context.request.body += chunk;
             });
-            proxyReq.on('end', () => {
+            req.on('end', () => {
                 this.log.debug('proxyReq.on("end"');
+                context.request.url = req.url;
+                context.request.host = req.headers.host;
+                context.request.protocol = 'http';
+                context.request.method = req.method;
                 this.listeners.requestProxyListeners.forEach((listener) => {
                     listener.handleEvent(this.log, context);
                 });
@@ -63,15 +68,15 @@ class HttpProxyProxyServer {
             let dataAvailable = false;
             proxyRes.on('data', (chunk) => {
                 this.log.debug('proxyRes.on("data")');
-                context.response.body += chunk;
+                context.response.body += chunk.toString('utf8');
             });
             proxyRes.on('end', () => {
                 this.log.debug('proxyRes.on("end")');
+                context.response.headers = proxyRes.headers;
+                context.response.statusCode = proxyRes.statusCode;
                 this.listeners.responseProxyListeners.forEach((listener) => {
                     listener.handleEvent(this.log, context);
                 });
-                context.response.headers = proxyRes.headers;
-                context.response.statusCode = proxyRes.statusCode;
             });
         });
     }

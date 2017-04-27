@@ -11,18 +11,18 @@ class ProxyContext {
     }
     toString() {
         let result = '';
-        result += '---------------------------------------';
-        result += 'context = {\n';
+        result += '\n---------------------------------------';
+        result += '\ncontext = {\n';
         if (this.error != null)
-            result += `\terror: ${this.error.message}`;
-        result += `\tresponse: ${this.response}`;
-        result += `\trequest: ${this.request}`;
-        result += `\tresponse: ${this.response}`;
-        result += `\tresponse: ${this.response}`;
-        result += `\tdataMap:`;
+            result += `\n\terror-message: ${this.error.message}`;
+        result += `\n\trequest-body: ${this.request.body}`;
+        result += `\n\trequest-url: ${this.request.fullUrl}`;
+        result += `\n\trequest-method: ${this.request.method}`;
+        result += `\n\tresponse-headers: ${JSON.stringify(this.response.headers)}`;
+        result += `\n\tdataMap:`;
         if (this.dataMap != null)
-            result += `${this.dataMap.toString()}`;
-        result += '---------------------------------------';
+            result += `\n${this.dataMap.toString()}`;
+        result += '\n---------------------------------------';
         return result;
     }
 }
