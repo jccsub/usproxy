@@ -6,6 +6,7 @@ const proxy_listeners_1 = require("./proxy/proxy-listeners");
 const winston_logger_1 = require("./winston-logger");
 const proxy_listener_1 = require("./proxy/proxy-listener");
 const http = require("http");
+const httpProxy = require("http-proxy");
 var log = new winston_logger_1.WinstonLog();
 var proxyListeners = new proxy_listeners_1.ProxyListeners(log);
 function logContext(context) {
@@ -13,7 +14,7 @@ function logContext(context) {
     log.debug(` context.error: ${context.error}`);
     log.debug(` context.dataMap: ${context.dataMap}`);
 }
-class testErrorProxyListner extends proxy_listener_1.ErrorProxyListener {
+class testErrorProxyListner extends proxy_listener_1.ProxyListener {
     handleEvent(logger, context) {
         log.debug("testErrorProxyListenr - hello: ");
         log.debug(`${context.toString()}`);
@@ -21,8 +22,8 @@ class testErrorProxyListner extends proxy_listener_1.ErrorProxyListener {
     }
 }
 log.debug("Adding testErrorProxyListner");
-proxyListeners.addListener(new testErrorProxyListner());
-class testParseProxyListener extends proxy_listener_1.ParseProxyListener {
+proxyListeners.addErrorListener(new testErrorProxyListner());
+class testParseProxyListener extends proxy_listener_1.ProxyListener {
     handleEvent(logger, context) {
         log.debug('Hello from testParsePRoxyListener');
         log.debug(`${context.toString()}`);
@@ -30,8 +31,8 @@ class testParseProxyListener extends proxy_listener_1.ParseProxyListener {
     }
 }
 log.debug("Adding testParseProxyListener");
-proxyListeners.addListener(new testParseProxyListener());
-class testRedirectProxyListener extends proxy_listener_1.RedirectProxyListener {
+proxyListeners.addParseListener(new testParseProxyListener());
+class testRedirectProxyListener extends proxy_listener_1.ProxyListener {
     handleEvent(logger, context) {
         log.debug('Hello from testRedirectProxyListener');
         log.debug(`${context.toString()}`);
@@ -39,8 +40,8 @@ class testRedirectProxyListener extends proxy_listener_1.RedirectProxyListener {
     }
 }
 log.debug("Adding testRedirectProxyListener");
-proxyListeners.addListener(new testRedirectProxyListener());
-class testRequestProxyListener extends proxy_listener_1.RequestProxyListener {
+proxyListeners.addRedirectListener(new testRedirectProxyListener());
+class testRequestProxyListener extends proxy_listener_1.ProxyListener {
     handleEvent(logger, context) {
         log.debug('Hello from testRequestProxyListener');
         log.debug(`${context.toString()}`);
@@ -48,8 +49,8 @@ class testRequestProxyListener extends proxy_listener_1.RequestProxyListener {
     }
 }
 log.debug("Adding testRequestProxyListener");
-proxyListeners.addListener(new testRequestProxyListener());
-class testResponseProxyListener extends proxy_listener_1.ResponseProxyListener {
+proxyListeners.addRequestListener(new testRequestProxyListener());
+class testResponseProxyListener extends proxy_listener_1.ProxyListener {
     handleEvent(logger, context) {
         log.debug('Hello from testResponseProxyListener');
         log.debug(`${context.toString()}`);
@@ -57,10 +58,11 @@ class testResponseProxyListener extends proxy_listener_1.ResponseProxyListener {
     }
 }
 log.debug("Adding testResponseProxyListener");
-proxyListeners.addListener(new testResponseProxyListener());
-proxyListeners.addResponseSelectAndReplace('#ctl00_Content_Login1_lblUserName', '<label id="ctl00_Content_Login1_lblUserName" for="ctl00_Content_Login1_UserName" localizableLabel="Username">MyUserName</label>');
+proxyListeners.addResponseListener(new testResponseProxyListener());
 var webServer = new connect_web_server_1.ConnectWebServer(log);
-var proxyServer = new httpproxy_proxy_server_1.HttpProxyProxyServer(webServer, 'http://jccsub2web.newgen.corp', proxyListeners, log);
+var proxyEventEmitter = new httpProxy.createProxyServer({ target: 'http://jccsub2web.newgen.corp' });
+var proxyServer = new httpproxy_proxy_server_1.HttpProxyProxyServer(proxyEventEmitter, webServer, log);
+proxyServer.addResponseSelectAndReplace('#ctl00_Content_Login1_lblUserName', '<label id="ctl00_Content_Login1_lblUserName" for="ctl00_Content_Login1_UserName" localizableLabel="Username">MyUserName</label>');
 http.createServer((req, res) => {
     log.debug('WEB SERVER RECEIVED REQUEST');
     res.writeHead(200, { 'Content-Type': 'text/html' });

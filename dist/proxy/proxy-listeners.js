@@ -13,26 +13,6 @@ class ProxyListeners {
         this.log = logger;
         this.log.debug(`ProxyListeners.constructor(${logger})`);
     }
-    addListener(proxyListener) {
-        this.log.debug(`ProxyListeners.addListener(${typeof proxyListener})`);
-        if (proxyListener instanceof proxy_listener_1.ErrorProxyListener) {
-            this.addErrorListener(proxyListener);
-        }
-        else if (proxyListener instanceof proxy_listener_1.ParseProxyListener) {
-            this.addParseListener(proxyListener);
-        }
-        else if (proxyListener instanceof proxy_listener_1.RedirectProxyListener) {
-            this.addRedirectListener(proxyListener);
-        }
-        else if (proxyListener instanceof proxy_listener_1.RequestProxyListener) {
-            this.addRequestListener(proxyListener);
-        }
-        else if (proxyListener instanceof proxy_listener_1.ResponseProxyListener) {
-            this.addResponseListener(proxyListener);
-        }
-        else
-            throw new Error(`Could not determine kind of load proxy listener`);
-    }
     addErrorListener(listener) {
         this.errorProxyListeners.push(listener);
     }

@@ -1,23 +1,21 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const httpProxy = require("http-proxy");
+const proxy_listeners_1 = require("./proxy-listeners");
 const proxy_context_1 = require("./proxy-context");
-//var httpProxy = require('http-proxy');
+const harmon = require("harmon");
 var connect = require('connect');
 class HttpProxyProxyServer {
-    constructor(webserver, target, listeners, log) {
+    constructor(proxyEventEmitter, webserver, log) {
         this.selectAndReplace = [];
         this.webServer = webserver;
-        this.listeners = listeners;
-        this.target = target;
+        this.listeners = new proxy_listeners_1.ProxyListeners(log);
         this.log = log;
-        this.log.debug(`Setting up proxy for ${target}`);
-        this.proxy = httpProxy.createProxyServer({ target: this.target });
+        this.proxy = proxyEventEmitter;
     }
     listen(port) {
         this.setupResponseSearchAndReplace();
         this.setupErrorListeners();
-        this.setupRequestListers();
+        this.setupRequestListeners();
         this.setupResponseListeners();
         this.setupMiddleware();
         this.log.debug(`HttpProxyProxyServer listening on port ${port}`);
@@ -27,30 +25,51 @@ class HttpProxyProxyServer {
         });
         this.webServer.listen(port);
     }
+    addErrorListener(proxyListener) {
+        this.listeners.addErrorListener(proxyListener);
+    }
+    addParseListener(listener) {
+        this.listeners.addErrorListener(listener);
+    }
+    addRedirectListener(listener) {
+        this.listeners.addErrorListener(listener);
+    }
+    addRequestListener(listener) {
+        this.listeners.addErrorListener(listener);
+    }
+    addResponseListener(listener) {
+        this.listeners.addErrorListener(listener);
+    }
+    addResponseSelectAndReplace(cssSelect, replaceString) {
+        this.listeners.addResponseSelectAndReplace(cssSelect, replaceString);
+    }
     setupErrorListeners() {
+        this.log.debug('setupErrorListeners');
         this.listeners.errorProxyListeners.forEach((listener) => {
             this.proxy.on('error', (error, req, res, next) => {
                 this.log.error(`Error proxy listener: ${error.message}`);
-                if (req != null)
+                if (req != null) {
+                    req.context.error = error;
                     listener.handleEvent(this.log, req.context);
+                }
+                else
+                    listener.handleEvent(this.log, error);
             });
         });
     }
-    setupRequestListers() {
+    setupRequestListeners() {
+        this.log.debug('setupRequestListeners');
         this.proxy.on('proxyReq', (proxyReq, req, res) => {
-            req.setEncoding(null);
-            this.log.debug('proxy.on("proxyReq")');
+            this.log.debug('proxy.on(proxyReq)');
             let context = new proxy_context_1.ProxyContext();
             context.request.body = '';
             req.context = context;
             let dataAvailable = false;
             req.on('data', (chunk) => {
-                this.log.debug('proxyReq.on("data")');
                 dataAvailable = true;
                 context.request.body += chunk;
             });
             req.on('end', () => {
-                this.log.debug('proxyReq.on("end"');
                 context.request.url = req.url;
                 context.request.host = req.headers.host;
                 context.request.protocol = 'http';
@@ -62,12 +81,12 @@ class HttpProxyProxyServer {
         });
     }
     setupResponseListeners() {
+        this.log.debug('setupResponseListeners');
         this.proxy.on('proxyRes', (proxyRes, req, res) => {
             this.log.debug('proxy.on("proxyRes")');
             let context = req.context;
             let dataAvailable = false;
             proxyRes.on('data', (chunk) => {
-                this.log.debug('proxyRes.on("data")');
                 context.response.body += chunk.toString('utf8');
             });
             proxyRes.on('end', () => {
@@ -80,16 +99,27 @@ class HttpProxyProxyServer {
             });
         });
     }
+    listProperties(obj) {
+        this.log.debug(`TypeOf ${typeof obj}`);
+        let array = Object.getOwnPropertyNames(obj);
+        array.forEach((item) => {
+            this.log.debug(`${item}`);
+        });
+    }
     setupResponseSearchAndReplace() {
+        this.log.debug('setupResponseSearchAndReplace');
         this.listeners.responseSelectAndReplace.forEach(selectAndReplaceItem => {
             let item = {};
             item.query = selectAndReplaceItem.cssSelectString;
-            item.func = function (node) { node.createWriteStream().end(selectAndReplaceItem.replaceString); };
+            item.func = (node) => {
+                this.listProperties(node);
+                node.createWriteStream().end(selectAndReplaceItem.replaceString);
+            };
             this.selectAndReplace.push(item);
         });
     }
     setupMiddleware() {
-        this.webServer.use(require('harmon')([], this.selectAndReplace));
+        this.webServer.use(harmon([], this.selectAndReplace));
         this.webServer.use((req, res) => { this.proxy.web(req, res); });
     }
 }

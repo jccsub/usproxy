@@ -1,25 +1,31 @@
 {
-  "name": "bookm",
+  "name": "usproxy",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --recursive --reporter spec --compilers ts:ts-node/register \".\\test\\*.ts\"",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "test": "mocha ./dist/proxy/test"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/body-parser": "0.0.33",
+    "@types/chai": "3.5.1",
     "@types/connect": "3.4.30",
     "@types/debug": "0.0.29",
     "@types/koa": "2.0.39",
+    "@types/mocha": "2.2.41",
     "@types/node": "6.0.46",
     "@types/winston": "2.3.0",
+    "chai": "3.5.0",
     "gulp": "3.9.1",
     "gulp-typescript": "3.1.1",
     "http-proxy-middleware": "0.17.4",
+    "mocha": "3.3.0",
+    "mocha-typescript": "1.1.0",
+    "nyc": "10.3.0",
     "ts-node": "1.6.1",
     "typescript": "2.0.6"
   },
@@ -32,6 +38,7 @@
     "http-outgoing": "0.12.0",
     "http-proxy": "1.16.2",
     "koa": "2.0.0-alpha.8",
+    "typemoq": "1.5.0",
     "winston": "2.3.1"
   }
 }

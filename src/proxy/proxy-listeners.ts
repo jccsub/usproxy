@@ -1,11 +1,6 @@
 
 import {
   ProxyListener, 
-  ErrorProxyListener, 
-  ParseProxyListener, 
-  RedirectProxyListener, 
-  RequestProxyListener, 
-  ResponseProxyListener,
   ResponseSelectAndReplace
 } from './proxy-listener';
 
@@ -17,11 +12,11 @@ var httpProxy = require('http-proxy');
 
 export class ProxyListeners {
 
-  public readonly errorProxyListeners : Array<ErrorProxyListener> = [];
-  public readonly parseProxyListeners : Array<ParseProxyListener> = [];
-  public readonly redirectProxyListeners : Array<RedirectProxyListener> = [];
-  public readonly requestProxyListeners : Array<RequestProxyListener> = [];
-  public readonly responseProxyListeners : Array<ResponseProxyListener> = [];
+  public readonly errorProxyListeners : Array<ProxyListener> = [];
+  public readonly parseProxyListeners : Array<ProxyListener> = [];
+  public readonly redirectProxyListeners : Array<ProxyListener> = [];
+  public readonly requestProxyListeners : Array<ProxyListener> = [];
+  public readonly responseProxyListeners : Array<ProxyListener> = [];
   public readonly responseSelectAndReplace : Array<ResponseSelectAndReplace> = [];
   private log : Log;
   
@@ -31,49 +26,24 @@ export class ProxyListeners {
     this.log.debug(`ProxyListeners.constructor(${logger})`);
   }
 
-  public addListener(proxyListener : ErrorProxyListener |  ParseProxyListener | RedirectProxyListener | RequestProxyListener | ResponseProxyListener) {
-    this.log.debug(`ProxyListeners.addListener(${typeof proxyListener})`);
-    if (proxyListener instanceof ErrorProxyListener) {
-      this.addErrorListener(proxyListener);
-    }
-    else 
-    if (proxyListener instanceof ParseProxyListener) {
-      this.addParseListener(proxyListener);
-    }
-    else 
-    if (proxyListener instanceof RedirectProxyListener) {
-      this.addRedirectListener(proxyListener);
-    }
-    else 
-    if (proxyListener instanceof RequestProxyListener) {
-      this.addRequestListener(proxyListener);
-    }
-    else 
-    if (proxyListener instanceof ResponseProxyListener) {
-      this.addResponseListener(proxyListener);
-    }
-    else 
-      throw new Error(`Could not determine kind of load proxy listener`);
-  } 
-    
- 
-  private addErrorListener(listener: ErrorProxyListener) {
+
+  public addErrorListener(listener: ProxyListener) {
     this.errorProxyListeners.push(listener);
   }
 
-  private addParseListener(listener: ParseProxyListener) {
+  public addParseListener(listener: ProxyListener) {
     this.parseProxyListeners.push(listener);
   }
 
-  private addRedirectListener(listener : RedirectProxyListener) {
+  public addRedirectListener(listener : ProxyListener) {
     this.redirectProxyListeners.push(listener);
   }
 
-  private addRequestListener(listener: RequestProxyListener) {
+  public addRequestListener(listener: ProxyListener) {
     this.requestProxyListeners.push(listener);
   }
 
-  private addResponseListener(listener: ResponseProxyListener) {
+  public addResponseListener(listener: ProxyListener) {
     this.responseProxyListeners.push(listener);
   }  
 

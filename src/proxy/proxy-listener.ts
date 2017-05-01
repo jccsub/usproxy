@@ -2,29 +2,12 @@
 import {Log} from '../logger';
 import {ProxyContext} from './proxy-context';
 
-export abstract class ProxyListener {
-  abstract handleEvent(logger : Log, context : ProxyContext) : void;
+export class ProxyListener {
+  public handleEvent(logger : Log, context : any) : void {    
+    logger.debug('Base handleEvent');
+    throw new Error('Not implemented');
+  }
 }
-
-export abstract class ErrorProxyListener extends ProxyListener {
-  abstract handleEvent(logger: Log, context: ProxyContext): void;
-};
-
-export abstract class ParseProxyListener extends ProxyListener  {
-  abstract handleEvent(logger: Log, context: ProxyContext): void;
-};
-
-export abstract class RedirectProxyListener extends ProxyListener {
-  abstract handleEvent(logger: Log, context: ProxyContext): void;
-};
-
-export abstract class RequestProxyListener extends ProxyListener {
-  abstract handleEvent(logger: Log, context: ProxyContext): void;
-};
-
-export abstract class ResponseProxyListener extends ProxyListener {
-  abstract handleEvent(logger: Log, context: ProxyContext): void;
-};
 
 export class ResponseSelectAndReplace {
   public cssSelectString : string;

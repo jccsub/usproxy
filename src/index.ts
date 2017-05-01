@@ -7,15 +7,11 @@ import {ProxyContext} from './proxy/proxy-context'
 
 import {
   ProxyListener, 
-  ErrorProxyListener, 
-  ParseProxyListener, 
-  RedirectProxyListener, 
-  RequestProxyListener, 
-  ResponseProxyListener,
   ResponseSelectAndReplace
 } from './proxy/proxy-listener';
 
 import * as http from 'http';
+import * as httpProxy from 'http-proxy';
 
 var log = new WinstonLog();
 
@@ -28,7 +24,7 @@ function logContext(context: ProxyContext) {
   log.debug(` context.dataMap: ${context.dataMap}`);
 }
 
-class testErrorProxyListner extends ErrorProxyListener {
+class testErrorProxyListner extends ProxyListener {
   handleEvent(logger: Log, context: ProxyContext): boolean {
     log.debug("testErrorProxyListenr - hello: ")
     log.debug(`${context.toString()}`);
@@ -37,9 +33,9 @@ class testErrorProxyListner extends ErrorProxyListener {
 }
 
 log.debug("Adding testErrorProxyListner")
-proxyListeners.addListener(new testErrorProxyListner());
+proxyListeners.addErrorListener(new testErrorProxyListner());
 
-class testParseProxyListener extends ParseProxyListener {
+class testParseProxyListener extends ProxyListener {
   handleEvent(logger: Log, context: ProxyContext): boolean {
     log.debug('Hello from testParsePRoxyListener');
     log.debug(`${context.toString()}`);
@@ -48,9 +44,9 @@ class testParseProxyListener extends ParseProxyListener {
 }
 
 log.debug("Adding testParseProxyListener")
-proxyListeners.addListener(new testParseProxyListener());
+proxyListeners.addParseListener(new testParseProxyListener());
 
-class testRedirectProxyListener extends RedirectProxyListener {
+class testRedirectProxyListener extends ProxyListener {
   handleEvent(logger: Log, context: ProxyContext): boolean {
     log.debug('Hello from testRedirectProxyListener');
     log.debug(`${context.toString()}`);
@@ -58,9 +54,9 @@ class testRedirectProxyListener extends RedirectProxyListener {
   }
 }
 log.debug("Adding testRedirectProxyListener")
-proxyListeners.addListener(new testRedirectProxyListener());
+proxyListeners.addRedirectListener(new testRedirectProxyListener());
 
-class testRequestProxyListener extends RequestProxyListener {
+class testRequestProxyListener extends ProxyListener {
   handleEvent(logger: Log, context: ProxyContext): boolean {
     log.debug('Hello from testRequestProxyListener');
     log.debug(`${context.toString()}`);
@@ -68,9 +64,9 @@ class testRequestProxyListener extends RequestProxyListener {
   }
 }
 log.debug("Adding testRequestProxyListener")
-proxyListeners.addListener(new testRequestProxyListener());
+proxyListeners.addRequestListener(new testRequestProxyListener());
 
-class testResponseProxyListener extends ResponseProxyListener {
+class testResponseProxyListener extends ProxyListener {
   handleEvent(logger: Log, context: ProxyContext): boolean {
     log.debug('Hello from testResponseProxyListener');
     log.debug(`${context.toString()}`);
@@ -78,14 +74,13 @@ class testResponseProxyListener extends ResponseProxyListener {
   }
 }
 log.debug("Adding testResponseProxyListener")
-proxyListeners.addListener(new testResponseProxyListener());
-
-proxyListeners.addResponseSelectAndReplace('#ctl00_Content_Login1_lblUserName','<label id="ctl00_Content_Login1_lblUserName" for="ctl00_Content_Login1_UserName" localizableLabel="Username">MyUserName</label>');
+proxyListeners.addResponseListener(new testResponseProxyListener());
 
 var webServer = new ConnectWebServer(log);
-var proxyServer = new HttpProxyProxyServer(webServer,'http://jccsub2web.newgen.corp', proxyListeners, log);
+var proxyEventEmitter = new httpProxy.createProxyServer({target:'http://jccsub2web.newgen.corp'});
+var proxyServer = new HttpProxyProxyServer(proxyEventEmitter, webServer,  log);
 
-
+proxyServer.addResponseSelectAndReplace('#ctl00_Content_Login1_lblUserName','<label id="ctl00_Content_Login1_lblUserName" for="ctl00_Content_Login1_UserName" localizableLabel="Username">MyUserName</label>');
 
 http.createServer((req, res) => {
         log.debug('WEB SERVER RECEIVED REQUEST');

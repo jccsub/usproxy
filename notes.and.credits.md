@@ -18,6 +18,8 @@
     - [Using Express](#using-express)
     - [Using Typescript](#using-typescript)
     - [Using Mocha for test support](#using-mocha-for-test-support)
+    - [Using TypeMoq for unit test mocks](#using-typemoq-for-unit-test-mocks)
+    - [Code Coverage with Istanbul](#code-coverage-with-istanbul)
     - [Required Node Version](#required-node-version)
     - [Proxy Server](#proxy-server)
   - [Notes on Node Subjects](#notes-on-node-subjects)
@@ -30,7 +32,9 @@
     - [Notes on Node's Http server](#notes-on-nodes-http-server)
     - [Notes on Listening to Http-Proxy Traffic](#notes-on-listening-to-http-proxy-traffic)
   - [Additional Helpful Links](#additional-helpful-links)
+    - [Method overloading](#method-overloading)
     - [Debugging ES6 in VS Code](#debugging-es6-in-vs-code)
+    - [Debugging Mocha Tests](#debugging-mocha-tests)
     - [A proxy server in 20 lines](#a-proxy-server-in-20-lines)
     - [Best Practices for Node.js Development](#best-practices-for-nodejs-development)
     - [Typescript Mixins](#typescript-mixins)
@@ -120,7 +124,43 @@ The path pattern will not work in windows. The above in windows should be someth
     "start": "node dist/index.js"
   },
 ```
-The above "test" pattern is working.
+* The above "test" pattern is working.
+
+* Look [here](http://brianflove.com/2016/11/11/typescript-2-express-mongoose-mocha-chai/) for an example of using Mocha with Typescript (Search for text "Updated 2016-11-28")
+
+
+### Using TypeMoq for unit test mocks
+
+[Github site](https://github.com/florinn/typemoq)
+
+### Code Coverage with Istanbul
+
+The first paragraph of the [istanbul.js.org's](https://istanbul.js.org) post, [Using Istanbul With Mocha](https://istanbul.js.org/docs/tutorials/mocha/), is what I stumbled across after searching for about 2 hours on how to use Istanbul with mocha on Windows.
+
+>*At the end of the day, all you need to do is place the bin nyc in front of the existing test scripts in your package.json*
+
+Incredibly enough, all I had to do was install [nyc](https://github.com/istanbuljs/nyc) and then change:
+
+    npm test
+    
+  to
+
+    nyc npm test
+
+and I got output like this (truncated a bit):
+
+File                         |  % Stmts | % Branch |  % Funcs |  % Lines |Uncovered Lines |
+-----------------------------|----------|----------|----------|----------|----------------|
+All files                    |     56.7 |    41.67 |    40.63 |    57.07 |                |
+ src/proxy                   |     47.2 |    33.33 |     32.5 |    47.97 |                |
+  data-map.ts                |       50 |      100 |        0 |       50 |              5 |
+  proxy-context.ts           |    33.33 |        0 |       50 |    33.33 |... 28,29,30,31 |
+  proxy-listener.ts          |    33.33 |      100 |        0 |    33.33 |      7,8,17,18 |
+ src/proxy/test              |    75.44 |       50 |    56.25 |       78 |                |
+  errorhandling-test.ts      |    72.34 |      100 |       50 |       75 |... 65,66,67,68 |
+  mock-proxyevent-emitter.ts |       90 |       50 |       75 |       90 |             23 |
+
+    
 
 ### Required Node Version
 
@@ -163,10 +203,27 @@ Notes from this [stackoverflow answer](http://stackoverflow.com/a/32186243)
 
 ## Additional Helpful Links
 
+### Method overloading
+See [StackOverflow post](http://stackoverflow.com/a/12689054)
+
 ### Debugging ES6 in VS Code
 
 * Struggled with this for a long while. 
 * What worked for me and simplest to implement was: [Node development with typescript](https://bertrandg.github.io/node-development-with-typescript-and-vscode/)
+
+### Debugging Mocha Tests
+* Using [node-inspector](https://github.com/node-inspector/node-inspector) as mentioned in [stackoverflow](http://stackoverflow.com/a/15884692)
+
+1. write mocha tests
+1. install node-inspector
+1. start node-inspector -- it will now be listening on 5858
+1. start the mocha test with --debug-brk (mocha ./dist/proxy/test --debug-brk)
+1. at this point the mocha test is paused on the first line
+1. open a web browser and go to localhost:5858
+1. (optional: add a debugger line at the top of your test file, set breakpoints after it stops in that file)
+1. hit F10 to get the code to go
+1. node-inspector will stop on any line that has debugger on it. Occasionally it won't move the code file's window to the right place, so you'll have to hit F10 to get it to step to the next line and show where it's at in the file.
+
 
 ### A proxy server in 20 lines
 * Wanted to write a proxy server from scratch
