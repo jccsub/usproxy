@@ -7,7 +7,7 @@ import * as http from 'http';
 
 var httpProxy = require('http-proxy');
 
-export class ProxyListeners {
+export class ProxyListenerCollection {
 
   public readonly errorProxyListeners : Array<ProxyListener> = [];
   public readonly parseProxyListeners : Array<ProxyListener> = [];

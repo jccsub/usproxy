@@ -1,21 +1,17 @@
 import {ProxyServer} from './proxy-server';
 import {ProxyListener} from './proxy-listener';
-import {ProxyListeners} from './proxy-listeners';
+import {ProxyListenerCollection} from './proxy-listener-collection';
 import {WebServer} from '../webserver/web-server'
 import {ProxyContext} from './proxy-context';
 import {Log} from '../logger';
-import * as http from 'http';
 import {ProxyEventEmitter} from './proxy-event-emitter';
 import {StreamingHtmlMiddleware,SelectAndReplaceItem} from '../utils/streaming-html-middleware';
-
-
-var connect = require('connect');
 
 export class HttpProxyServer implements ProxyServer {
 
   private webServer : WebServer;
   private proxy : ProxyEventEmitter;
-  private listeners : ProxyListeners;
+  private listeners : ProxyListenerCollection;
   private target : string;
   private selectAndReplace : any = [];
   private log : Log;
@@ -29,7 +25,7 @@ export class HttpProxyServer implements ProxyServer {
     log : Log) {
     this.webServer = webserver;
     this.log = log;
-    this.listeners = new ProxyListeners(log);
+    this.listeners = new ProxyListenerCollection(log);
     this.proxy = proxyEventEmitter;
     this.streamingHtmlMiddleware = streamingHtmlMiddleware;
   }

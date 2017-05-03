@@ -1,6 +1,6 @@
 import {ConnectWebServer} from './webserver/connect-web-server';
 import {HttpProxyServer} from './proxy/http-proxy-server';
-import {ProxyListeners} from './proxy/proxy-listeners';
+import {ProxyListenerCollection} from './proxy/proxy-listener-collection';
 import {WinstonLog} from './winston-logger';
 import {Log} from './logger';
 import {ProxyContext} from './proxy/proxy-context'
@@ -13,7 +13,7 @@ import * as httpProxy from 'http-proxy';
 var log = new WinstonLog();
 
 
-var proxyListeners = new ProxyListeners(log);
+var proxyListeners = new ProxyListenerCollection(log);
 
 function logContext(context: ProxyContext) {
   log.debug('Logging context: ');
@@ -78,17 +78,7 @@ var proxyEventEmitter = new httpProxy.createProxyServer({target:'http://jccsub2w
 var harmon = new HarmonStreamingHtmlMiddleware(log);
 var proxyServer = new HttpProxyServer(proxyEventEmitter,  webServer, harmon,  log);
 
-
 proxyServer.addResponseSelectAndReplace('#ctl00_Content_Login1_lblUserName','<label id="ctl00_Content_Login1_lblUserName" for="ctl00_Content_Login1_UserName" localizableLabel="Username">MyUserName</label>');
-
-/*
-http.createServer((req, res) => {
-        log.debug('WEB SERVER RECEIVED REQUEST');
-        res.writeHead(200, { 'Content-Type': 'text/html' });
-        res.write('<html><head></head><body><div class="b">Nodejitsu Http Proxy</div><div class="b">&amp; Frames</div></body></html>');
-            res.end();
-}).listen(9000);
-*/
 
 proxyServer.listen(8001);
 

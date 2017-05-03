@@ -2,12 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const connect_web_server_1 = require("./webserver/connect-web-server");
 const http_proxy_server_1 = require("./proxy/http-proxy-server");
-const proxy_listeners_1 = require("./proxy/proxy-listeners");
+const proxy_listener_collection_1 = require("./proxy/proxy-listener-collection");
 const winston_logger_1 = require("./winston-logger");
 const harmon_streaming_html_middleware_1 = require("./utils/harmon-streaming-html-middleware");
 const httpProxy = require("http-proxy");
 var log = new winston_logger_1.WinstonLog();
-var proxyListeners = new proxy_listeners_1.ProxyListeners(log);
+var proxyListeners = new proxy_listener_collection_1.ProxyListenerCollection(log);
 function logContext(context) {
     log.debug('Logging context: ');
     log.debug(` context.error: ${context.error}`);
@@ -63,13 +63,5 @@ var proxyEventEmitter = new httpProxy.createProxyServer({ target: 'http://jccsub
 var harmon = new harmon_streaming_html_middleware_1.HarmonStreamingHtmlMiddleware(log);
 var proxyServer = new http_proxy_server_1.HttpProxyServer(proxyEventEmitter, webServer, harmon, log);
 proxyServer.addResponseSelectAndReplace('#ctl00_Content_Login1_lblUserName', '<label id="ctl00_Content_Login1_lblUserName" for="ctl00_Content_Login1_UserName" localizableLabel="Username">MyUserName</label>');
-/*
-http.createServer((req, res) => {
-        log.debug('WEB SERVER RECEIVED REQUEST');
-        res.writeHead(200, { 'Content-Type': 'text/html' });
-        res.write('<html><head></head><body><div class="b">Nodejitsu Http Proxy</div><div class="b">&amp; Frames</div></body></html>');
-            res.end();
-}).listen(9000);
-*/
 proxyServer.listen(8001);
 //# sourceMappingURL=index.js.map

@@ -1,14 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const proxy_listeners_1 = require("./proxy-listeners");
+const proxy_listener_collection_1 = require("./proxy-listener-collection");
 const proxy_context_1 = require("./proxy-context");
-var connect = require('connect');
 class HttpProxyServer {
     constructor(proxyEventEmitter, webserver, streamingHtmlMiddleware, log) {
         this.selectAndReplace = [];
         this.webServer = webserver;
         this.log = log;
-        this.listeners = new proxy_listeners_1.ProxyListeners(log);
+        this.listeners = new proxy_listener_collection_1.ProxyListenerCollection(log);
         this.proxy = proxyEventEmitter;
         this.streamingHtmlMiddleware = streamingHtmlMiddleware;
     }
