@@ -20,8 +20,6 @@ class testErrorProxyListner {
         return false;
     }
 }
-log.debug("Adding testErrorProxyListner");
-proxyListeners.addErrorListener(new testErrorProxyListner());
 class testParseProxyListener {
     handleEvent(logger, context) {
         log.debug('Hello from testParsePRoxyListener');
@@ -29,8 +27,6 @@ class testParseProxyListener {
         return false;
     }
 }
-log.debug("Adding testParseProxyListener");
-proxyListeners.addParseListener(new testParseProxyListener());
 class testRedirectProxyListener {
     handleEvent(logger, context) {
         log.debug('Hello from testRedirectProxyListener');
@@ -38,8 +34,6 @@ class testRedirectProxyListener {
         return false;
     }
 }
-log.debug("Adding testRedirectProxyListener");
-proxyListeners.addRedirectListener(new testRedirectProxyListener());
 class testRequestProxyListener {
     handleEvent(logger, context) {
         log.debug('Hello from testRequestProxyListener');
@@ -47,8 +41,6 @@ class testRequestProxyListener {
         return false;
     }
 }
-log.debug("Adding testRequestProxyListener");
-proxyListeners.addRequestListener(new testRequestProxyListener());
 class testResponseProxyListener {
     handleEvent(logger, context) {
         log.debug('Hello from testResponseProxyListener');
@@ -56,12 +48,15 @@ class testResponseProxyListener {
         return false;
     }
 }
-log.debug("Adding testResponseProxyListener");
-proxyListeners.addResponseListener(new testResponseProxyListener());
 var webServer = new connect_web_server_1.ConnectWebServer(log);
 var proxyEventEmitter = new httpProxy.createProxyServer({ target: 'http://jccsub2web.newgen.corp' });
 var harmon = new harmon_streaming_html_middleware_1.HarmonStreamingHtmlMiddleware(log);
 var proxyServer = new http_proxy_server_1.HttpProxyServer(proxyEventEmitter, webServer, harmon, log);
+proxyServer.addRequestListener(new testRequestProxyListener());
+proxyServer.addResponseListener(new testResponseProxyListener());
 proxyServer.addResponseSelectAndReplace('#ctl00_Content_Login1_lblUserName', '<label id="ctl00_Content_Login1_lblUserName" for="ctl00_Content_Login1_UserName" localizableLabel="Username">MyUserName</label>');
+proxyServer.addRedirectListener(new testRedirectProxyListener());
+proxyServer.addParseListener(new testParseProxyListener());
+proxyServer.addErrorListener(new testErrorProxyListner());
 proxyServer.listen(8001);
 //# sourceMappingURL=index.js.map
