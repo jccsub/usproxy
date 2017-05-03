@@ -1,10 +1,20 @@
 import {StreamingHtmlMiddleware,SelectAndReplaceItem} from './streaming-html-middleware';
 import harmon = require('harmon');
+import {Log} from '../logger';
 
 export class HarmonStreamingHtmlMiddleware implements StreamingHtmlMiddleware {
-  getSelectAndReplaceCallback(selectAndReplaceItems: Array<SelectAndReplaceItem>): (req: any, resp: any, next: any) => void {
+  private log : Log;
+
+  constructor(log : Log) {
+    this.log = log;
+    this.selectAndReplaceItems = new Array<SelectAndReplaceItem>();
+  }
+
+  public selectAndReplaceItems: Array<SelectAndReplaceItem>;
+  
+  public get selectAndReplaceCallback(): (req: any, resp: any, next: any) => void {
     let selectAndReplaceParams : any = [];
-    selectAndReplaceItems.forEach(selectAndReplaceItem=>{
+    this.selectAndReplaceItems.forEach(selectAndReplaceItem=>{
       let item : any = {};
       item.query = selectAndReplaceItem.cssSelector;
       item.func = (node) => {

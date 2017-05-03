@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const proxy_listener_1 = require("./proxy-listener");
+const streaming_html_middleware_1 = require("../utils/streaming-html-middleware");
 var httpProxy = require('http-proxy');
 class ProxyListeners {
     constructor(logger) {
@@ -11,7 +11,6 @@ class ProxyListeners {
         this.responseProxyListeners = [];
         this.responseSelectAndReplace = [];
         this.log = logger;
-        this.log.debug(`ProxyListeners.constructor(${logger})`);
     }
     addErrorListener(listener) {
         this.errorProxyListeners.push(listener);
@@ -29,7 +28,8 @@ class ProxyListeners {
         this.responseProxyListeners.push(listener);
     }
     addResponseSelectAndReplace(cssSelect, replaceString) {
-        this.responseSelectAndReplace.push(new proxy_listener_1.ResponseSelectAndReplace(cssSelect, replaceString));
+        this.log.debug(`adding ${cssSelect}`);
+        this.responseSelectAndReplace.push(new streaming_html_middleware_1.SelectAndReplaceItem(cssSelect, replaceString));
     }
 }
 exports.ProxyListeners = ProxyListeners;

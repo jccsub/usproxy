@@ -26,6 +26,7 @@ export class MockProxyEventEmitter implements ProxyEventEmitter {
     if (arg2) {
       this.eventEmitter.emit(name, arg1, arg2);
     }
+    else
     if (arg1) {
       this.eventEmitter.emit(name, arg1);
     }

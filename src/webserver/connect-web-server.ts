@@ -10,7 +10,6 @@ export class ConnectWebServer implements WebServer {
   constructor(logger : Log) {
     this.app = require('connect')();
     this.app.use((req,res,next)=>{
-      logger.debug('ConnectWebServer - logging middleware')
       next()
     });
   }

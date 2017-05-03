@@ -1,9 +1,6 @@
 
-import {
-  ProxyListener, 
-  ResponseSelectAndReplace
-} from './proxy-listener';
-
+import {ProxyListener} from './proxy-listener';
+import {StreamingHtmlMiddleware,SelectAndReplaceItem} from '../utils/streaming-html-middleware';
 import {ProxyContext} from './proxy-context';
 import {Log} from '../logger';
 import * as http from 'http';
@@ -17,13 +14,12 @@ export class ProxyListeners {
   public readonly redirectProxyListeners : Array<ProxyListener> = [];
   public readonly requestProxyListeners : Array<ProxyListener> = [];
   public readonly responseProxyListeners : Array<ProxyListener> = [];
-  public readonly responseSelectAndReplace : Array<ResponseSelectAndReplace> = [];
+  public readonly responseSelectAndReplace : Array<SelectAndReplaceItem> = [];
   private log : Log;
   
 
   constructor(logger : Log ) {
     this.log = logger;
-    this.log.debug(`ProxyListeners.constructor(${logger})`);
   }
 
 
@@ -48,7 +44,8 @@ export class ProxyListeners {
   }  
 
   public addResponseSelectAndReplace(cssSelect : string, replaceString : string)  {
-    this.responseSelectAndReplace.push(new ResponseSelectAndReplace(cssSelect,replaceString));
+    this.log.debug(`adding ${cssSelect}`);
+    this.responseSelectAndReplace.push(new SelectAndReplaceItem(cssSelect,replaceString));
   }
 
 }

@@ -9,6 +9,7 @@
     - [Lowercase file names](#lowercase-file-names)
     - [General Coding Conventions](#general-coding-conventions)
     - [Define interfaces for callbacks](#define-interfaces-for-callbacks)
+    - [Node project organization](#node-project-organization)
     - [Event handlers in TypeScript](#event-handlers-in-typescript)
       - [TypeScript EventHandler Property](#typescript-eventhandler-property)
       - [Node.js EventEmitter with Custom Events](#nodejs-eventemitter-with-custom-events)
@@ -47,6 +48,10 @@
 
 * I think Box corrupts my node_modules folder. Moving to non-box location and just using git.
 
+* I'm excluding the capability to add middleware to the proxy server intentionally. The middleware that is internally used by the proxy server remains internal and is passed in through the constructor. The reason is that middleware makes the proxy server too flexible and may lead to my confusion since this is being written bit-by-bit over a long period of time. 
+
+Extensibility is tightly controlled and strongly typed so that I don't have to remember what my intention was. Intention is evident and enforced.
+
 ## Conventions Used
 
 ### Use exact versions for dependencies 
@@ -71,6 +76,9 @@ Microsoft's TypeScript [Coding guidelines](https://github.com/Microsoft/TypeScri
 * I was defining function/callback signatures inline before reading [this post](https://www.bennadel.com/blog/3217-defining-function-and-callback-interfaces-in-typescript.htm).
 * I'm now explicitly defining interfaces for callbacks so that the code will be more readable.
 
+### Node project organization
+
+I'm kind of using [this](https://blog.risingstack.com/node-hero-node-js-project-structure-tutorial/) as a guideline.
 
 ### Event handlers in TypeScript
 

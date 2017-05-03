@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const proxy_listeners_1 = require("./proxy-listeners");
 const proxy_context_1 = require("./proxy-context");
 var connect = require('connect');
-class HttpProxyProxyServer {
+class HttpProxyServer {
     constructor(proxyEventEmitter, webserver, streamingHtmlMiddleware, log) {
         this.selectAndReplace = [];
         this.webServer = webserver;
@@ -93,5 +93,5 @@ class HttpProxyProxyServer {
         this.webServer.use((req, res) => { this.proxy.web(req, res); });
     }
 }
-exports.HttpProxyProxyServer = HttpProxyProxyServer;
-//# sourceMappingURL=httpproxy-proxy-server.js.map
+exports.HttpProxyServer = HttpProxyServer;
+//# sourceMappingURL=http-proxy-server.js.map
