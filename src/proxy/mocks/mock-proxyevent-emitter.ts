@@ -3,14 +3,10 @@ import {EventEmitter} from 'events';
 import {ProxyEventEmitter} from '../proxy-event-emitter';
 
 export class MockProxyEventEmitter implements ProxyEventEmitter {
-  private eventEmitter : EventEmitter;
-
-
+  private eventEmitter : EventEmitter = new EventEmitter();
 
   constructor() {
-    this.eventEmitter = new EventEmitter();
   }
-
 
   emit(name : string) : void;
   emit(name : string, arg1 : any) : void;

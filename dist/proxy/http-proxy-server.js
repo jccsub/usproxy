@@ -51,7 +51,6 @@ class HttpProxyServer {
     }
     setupRequestListeners() {
         this.proxy.on('proxyReq', (proxyReq, req, res) => {
-            this.log.debug('setupRequestListeners');
             let context = new proxy_context_1.ProxyContext();
             context.request.body = '';
             req.context = context;
@@ -65,7 +64,6 @@ class HttpProxyServer {
                 context.request.host = req.headers.host;
                 context.request.protocol = 'http';
                 context.request.method = req.method;
-                this.log.debug('setupRequestListeners - end');
                 this.listeners.requestProxyListeners.forEach((listener) => {
                     listener.handleEvent(this.log, context);
                 });
@@ -74,7 +72,6 @@ class HttpProxyServer {
     }
     setupResponseListeners() {
         this.proxy.on('proxyRes', (proxyRes, req, res) => {
-            this.log.debug('setupResponseListeners');
             let context = req.context;
             let dataAvailable = false;
             proxyRes.on('data', (chunk) => {
@@ -83,7 +80,6 @@ class HttpProxyServer {
             proxyRes.on('end', () => {
                 context.response.headers = proxyRes.headers;
                 context.response.statusCode = proxyRes.statusCode;
-                this.log.debug('setupResponseListeners - end');
                 this.listeners.responseProxyListeners.forEach((listener) => {
                     listener.handleEvent(this.log, context);
                 });

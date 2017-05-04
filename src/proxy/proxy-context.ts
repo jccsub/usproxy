@@ -14,6 +14,7 @@ export class ProxyContext {
 
   public dataMap : DataMap = new DataMap();
 
+  /* istanbul ignore next */
   public toString() {
     let result ='';
     result += '\n---------------------------------------'

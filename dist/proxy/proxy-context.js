@@ -9,6 +9,7 @@ class ProxyContext {
         this.request = new proxy_request_1.ProxyRequest();
         this.dataMap = new data_map_1.DataMap();
     }
+    /* istanbul ignore next */
     toString() {
         let result = '';
         result += '\n---------------------------------------';

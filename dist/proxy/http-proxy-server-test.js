@@ -34,13 +34,14 @@ class ProxyTest {
         this.proxyServer = new http_proxy_server_1.HttpProxyServer(this.mockProxyEventEmitter, this.mockWebServer.object, this.mockStreamingHtml.object, this.log);
         this.mockErrorListener = TypeMoq.Mock.ofType();
         this.mockResponseListener = TypeMoq.Mock.ofType();
+        this.mockRequestListener = TypeMoq.Mock.ofType();
         this.proxyServer.addErrorListener(this.mockErrorListener.object);
         this.proxyServer.addResponseListener(this.mockResponseListener.object);
+        this.proxyServer.addRequestListener(this.mockRequestListener.object);
         this.proxyServer.listen(1234);
         chai_1.should();
     }
 }
-exports.ProxyTest = ProxyTest;
 let ErrorEmittedBeforeARequestIsMade = class ErrorEmittedBeforeARequestIsMade extends ProxyTest {
     shouldCallHandleEventOnce() {
         let e = new Error('Again');
@@ -140,4 +141,156 @@ ResponseIsReturnedAfterARequest = __decorate([
     mocha_typescript_1.suite
 ], ResponseIsReturnedAfterARequest);
 exports.ResponseIsReturnedAfterARequest = ResponseIsReturnedAfterARequest;
+let ProxyResponseDataEventOccurs = class ProxyResponseDataEventOccurs extends ProxyTest {
+    contextResponseBodyHasData() {
+        let proxyRes = new events_1.EventEmitter();
+        let req = {};
+        req.context = new proxy_context_1.ProxyContext();
+        this.mockProxyEventEmitter.emit('proxyRes', proxyRes, req);
+        let chunk = 'TestData';
+        proxyRes.emit('data', chunk);
+        req.context.response.body.should.equal('TestData');
+    }
+};
+__decorate([
+    mocha_typescript_1.test,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], ProxyResponseDataEventOccurs.prototype, "contextResponseBodyHasData", null);
+ProxyResponseDataEventOccurs = __decorate([
+    mocha_typescript_1.suite
+], ProxyResponseDataEventOccurs);
+let ProxyRequestOccurs = class ProxyRequestOccurs extends ProxyTest {
+    before() {
+        super.before();
+        this.req = new events_1.EventEmitter();
+        let proxyReq = new events_1.EventEmitter();
+        this.mockProxyEventEmitter.emit('proxyReq', proxyReq, this.req);
+    }
+    proxyContextIsCreatedOnTheRequestObject() {
+        this.req.should.have.property('context');
+    }
+    proxyContextIsCreatedOnTheRequestObjectWithAnEmptyRequestBody() {
+        this.req.context.should.have.property('request');
+        this.req.context.request.body.should.equal('');
+    }
+};
+__decorate([
+    mocha_typescript_1.test,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], ProxyRequestOccurs.prototype, "proxyContextIsCreatedOnTheRequestObject", null);
+__decorate([
+    mocha_typescript_1.test,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], ProxyRequestOccurs.prototype, "proxyContextIsCreatedOnTheRequestObjectWithAnEmptyRequestBody", null);
+ProxyRequestOccurs = __decorate([
+    mocha_typescript_1.suite
+], ProxyRequestOccurs);
+let RequestDataEventOccurs = class RequestDataEventOccurs extends ProxyTest {
+    before() {
+        super.before();
+        this.req = new events_1.EventEmitter();
+        let proxyReq = new events_1.EventEmitter();
+        this.mockProxyEventEmitter.emit('proxyReq', proxyReq, this.req);
+        this.req.emit('data', 'test-data');
+    }
+    requestBodyIsSetToData() {
+        this.req.context.request.body.should.equal('test-data');
+    }
+    dataIsAppendedToRequestBody() {
+        this.req.emit('data', '2');
+        this.req.context.request.body.should.equal('test-data2');
+    }
+};
+__decorate([
+    mocha_typescript_1.test,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], RequestDataEventOccurs.prototype, "requestBodyIsSetToData", null);
+__decorate([
+    mocha_typescript_1.test,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], RequestDataEventOccurs.prototype, "dataIsAppendedToRequestBody", null);
+RequestDataEventOccurs = __decorate([
+    mocha_typescript_1.suite
+], RequestDataEventOccurs);
+let RequestEndEventOccurs = class RequestEndEventOccurs extends ProxyTest {
+    before() {
+        super.before();
+        this.req = new events_1.EventEmitter();
+        let proxyReq = new events_1.EventEmitter();
+        //(this.req as any).context = new ProxyContext();
+        this.req.url = '/url';
+        this.req.headers = {};
+        this.req.headers.host = 'host';
+        this.req.method = 'get';
+        this.mockProxyEventEmitter.emit('proxyReq', proxyReq, this.req);
+        this.req.emit('end');
+    }
+    requestUrlIsPopulated() {
+        this.req.context.request.url.should.equal('/url');
+    }
+    requestHostIsPopulated() {
+        this.req.context.request.host.should.equal('host');
+    }
+    requestProtocolIsPopulated() {
+        this.req.context.request.protocol.should.equal('http');
+    }
+    requestMethodIsPopulated() {
+        this.req.context.request.method.should.equal('get');
+    }
+    requestFullUrlIsPopulated() {
+        this.req.context.request.fullUrl.should.equal('http://host/url');
+    }
+    requestListenerIsCalled() {
+        this.mockRequestListener.verify(x => x.handleEvent(TypeMoq.It.isAny(), TypeMoq.It.isAny()), TypeMoq.Times.once());
+    }
+};
+__decorate([
+    mocha_typescript_1.test,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], RequestEndEventOccurs.prototype, "requestUrlIsPopulated", null);
+__decorate([
+    mocha_typescript_1.test,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], RequestEndEventOccurs.prototype, "requestHostIsPopulated", null);
+__decorate([
+    mocha_typescript_1.test,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], RequestEndEventOccurs.prototype, "requestProtocolIsPopulated", null);
+__decorate([
+    mocha_typescript_1.test,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], RequestEndEventOccurs.prototype, "requestMethodIsPopulated", null);
+__decorate([
+    mocha_typescript_1.test,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], RequestEndEventOccurs.prototype, "requestFullUrlIsPopulated", null);
+__decorate([
+    mocha_typescript_1.test,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], RequestEndEventOccurs.prototype, "requestListenerIsCalled", null);
+RequestEndEventOccurs = __decorate([
+    mocha_typescript_1.suite
+], RequestEndEventOccurs);
 //# sourceMappingURL=http-proxy-server-test.js.map

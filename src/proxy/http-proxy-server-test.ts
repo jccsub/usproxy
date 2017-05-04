@@ -13,12 +13,13 @@ import {WinstonLog}  from './../winston-logger';
 import {StreamingHtmlMiddleware, SelectAndReplaceItem} from './../utils/streaming-html-middleware';
 import {EventEmitter} from 'events';
 
-export class ProxyTest {  
+class ProxyTest {  
   protected mockWebServer : TypeMoq.IMock<WebServer>;
   protected proxyServer : HttpProxyServer;
   protected mockErrorListener : TypeMoq.IMock<ProxyListener>;
   protected mockResponseListener : TypeMoq.IMock<ProxyListener>;
   protected mockProxyEventEmitter : MockProxyEventEmitter;  
+  protected mockRequestListener : TypeMoq.IMock<ProxyListener>;
   protected mockStreamingHtml : TypeMoq.IMock<StreamingHtmlMiddleware>;
   protected log : Log;
 
@@ -26,7 +27,7 @@ export class ProxyTest {
     this.log = new WinstonLog();   
     this.mockWebServer = TypeMoq.Mock.ofType<WebServer>();
     this.mockStreamingHtml = TypeMoq.Mock.ofType<StreamingHtmlMiddleware>();
-    this.mockProxyEventEmitter = new MockProxyEventEmitter();
+    this.mockProxyEventEmitter = new MockProxyEventEmitter();    
     this.mockStreamingHtml.setup(x=>x.selectAndReplaceItems).returns(()=> { 
       return new Array<SelectAndReplaceItem>() 
     });
@@ -42,12 +43,15 @@ export class ProxyTest {
       this.log);    
     this.mockErrorListener = TypeMoq.Mock.ofType<ProxyListener>();
     this.mockResponseListener = TypeMoq.Mock.ofType<ProxyListener>();
+    this.mockRequestListener = TypeMoq.Mock.ofType<ProxyListener>();
     this.proxyServer.addErrorListener(this.mockErrorListener.object);   
     this.proxyServer.addResponseListener(this.mockResponseListener.object);
+    this.proxyServer.addRequestListener(this.mockRequestListener.object);
     this.proxyServer.listen(1234);
     should();
   }
 }
+
 
 @suite
 class ErrorEmittedBeforeARequestIsMade extends ProxyTest{
@@ -99,6 +103,7 @@ class ErrorEmittedAfterARequestIsMade extends ProxyTest {
   }
 }
 
+
 @suite
 export class ResponseIsReturnedAfterARequest extends ProxyTest {
 
@@ -119,4 +124,123 @@ export class ResponseIsReturnedAfterARequest extends ProxyTest {
     this.mockResponseListener.verify(x=>x.handleEvent(TypeMoq.It.isAny(),TypeMoq.It.isAny()) ,TypeMoq.Times.once());
   }
 
+}
+
+@suite
+class ProxyResponseDataEventOccurs extends ProxyTest {
+
+  @test
+  contextResponseBodyHasData() {
+    let proxyRes = new EventEmitter();
+    let req: any = {};
+    req.context = new ProxyContext();    
+    this.mockProxyEventEmitter.emit('proxyRes', proxyRes, req);
+    let chunk = 'TestData';
+    proxyRes.emit('data',chunk);
+    req.context.response.body.should.equal('TestData');
+  }
+
+}
+
+
+@suite 
+class ProxyRequestOccurs extends ProxyTest {
+
+  private req : EventEmitter;
+
+  before() {
+    super.before();
+    this.req = new EventEmitter();
+    let proxyReq = new EventEmitter();
+    this.mockProxyEventEmitter.emit('proxyReq', proxyReq, this.req);
+  }
+
+  @test 
+  proxyContextIsCreatedOnTheRequestObject() {
+    this.req.should.have.property('context');
+  }
+
+  @test 
+  proxyContextIsCreatedOnTheRequestObjectWithAnEmptyRequestBody() {
+    (this.req as any).context.should.have.property('request');    
+    (this.req as any).context.request.body.should.equal('');
+  }
+
+}
+
+
+@suite 
+class RequestDataEventOccurs extends ProxyTest {
+
+  private req : EventEmitter;
+
+  public before() {
+    super.before();
+    this.req = new EventEmitter();
+    let proxyReq = new EventEmitter();
+    this.mockProxyEventEmitter.emit('proxyReq', proxyReq, this.req);
+    this.req.emit('data', 'test-data');
+  }
+
+  @test 
+  public requestBodyIsSetToData() {
+    (this.req as any).context.request.body.should.equal('test-data');
+  }
+
+  @test 
+  dataIsAppendedToRequestBody() {
+    this.req.emit('data', '2');
+    (this.req as any).context.request.body.should.equal('test-data2');
+  }
+
+}
+
+
+@suite
+class RequestEndEventOccurs extends ProxyTest {
+  private req : EventEmitter;
+
+  public before() {
+    super.before();
+    this.req = new EventEmitter();
+    let proxyReq = new EventEmitter();       
+    //(this.req as any).context = new ProxyContext();
+    (this.req as any).url = '/url';
+    (this.req as any).headers = {};
+    (this.req as any).headers.host = 'host';
+    (this.req as any).method = 'get';
+    this.mockProxyEventEmitter.emit('proxyReq', proxyReq, this.req);
+    this.req.emit('end');
+  }
+
+  @test
+  requestUrlIsPopulated() {
+    (this.req as any).context.request.url.should.equal('/url');
+  }
+
+  @test
+  requestHostIsPopulated() {
+    (this.req as any).context.request.host.should.equal('host');
+  }
+
+  @test
+  requestProtocolIsPopulated() {
+    (this.req as any).context.request.protocol.should.equal('http');
+  }
+
+  @test
+  requestMethodIsPopulated() {
+    (this.req as any).context.request.method.should.equal('get');
+  }
+
+  @test
+  requestFullUrlIsPopulated() {
+    (this.req as any).context.request.fullUrl.should.equal('http://host/url');
+  }
+
+  @test
+  requestListenerIsCalled() {
+    this.mockRequestListener.verify(x=>x.handleEvent(TypeMoq.It.isAny(),TypeMoq.It.isAny()),TypeMoq.Times.once());
+  }
+  
 }
