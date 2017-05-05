@@ -9,8 +9,6 @@ export class SelectAndReplaceItem {
   }
   public get cssSelector(): string { return this.selector; };
   public get replacementHtml() : string {return this.replacement; }
-
-
 }
 
 export interface MiddleWareFunction {

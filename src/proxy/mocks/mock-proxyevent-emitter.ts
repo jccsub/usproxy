@@ -5,6 +5,7 @@ import {ProxyEventEmitter} from '../proxy-event-emitter';
 export class MockProxyEventEmitter implements ProxyEventEmitter {
   private eventEmitter : EventEmitter = new EventEmitter();
 
+/* istanbul ignore next */
   constructor() {
   }
 
@@ -13,12 +14,8 @@ export class MockProxyEventEmitter implements ProxyEventEmitter {
   emit(name : string, arg1 : any, arg2 : any) : void;
   emit(name : string, arg1 : any, arg2 : any, arg3 : any) : void;
 
-
+/* istanbul ignore next */
   emit(name : string, arg1? : any, arg2? : any, arg3? : any) : void {
-    if (arg3) {
-      this.eventEmitter.emit(name, arg1, arg2, arg3);
-    }
-    else
     if (arg2) {
       this.eventEmitter.emit(name, arg1, arg2);
     }
@@ -28,11 +25,11 @@ export class MockProxyEventEmitter implements ProxyEventEmitter {
     }
   }
 
-
+/* istanbul ignore next */
   on(eventName: string, callback: Function) {      
     this.eventEmitter.on(eventName,callback);
   }
-
+/* istanbul ignore next */
   web(req: any, res: any) {   
   }    
 }

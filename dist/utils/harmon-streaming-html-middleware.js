@@ -6,6 +6,7 @@ class HarmonStreamingHtmlMiddleware {
         this.log = log;
         this.selectAndReplaceItems = new Array();
     }
+    /* istanbul ignore next */
     get selectAndReplaceCallback() {
         let selectAndReplaceParams = [];
         this.selectAndReplaceItems.forEach(selectAndReplaceItem => {

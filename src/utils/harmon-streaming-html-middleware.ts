@@ -11,7 +11,8 @@ export class HarmonStreamingHtmlMiddleware implements StreamingHtmlMiddleware {
   }
 
   public selectAndReplaceItems: Array<SelectAndReplaceItem>;
-  
+
+/* istanbul ignore next */  
   public get selectAndReplaceCallback(): (req: any, resp: any, next: any) => void {
     let selectAndReplaceParams : any = [];
     this.selectAndReplaceItems.forEach(selectAndReplaceItem=>{
