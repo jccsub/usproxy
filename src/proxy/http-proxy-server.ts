@@ -30,7 +30,7 @@ export class HttpProxyServer implements ProxyServer {
     this.streamingHtmlMiddleware = streamingHtmlMiddleware;
   }
 
-  public listen(port : number) {
+  public listen(port : number, target : string) {
     this.setupErrorListeners();
     this.setupRequestListeners();
     this.setupResponseListeners();
@@ -114,7 +114,7 @@ export class HttpProxyServer implements ProxyServer {
         });
       });
   }
-
+  
   private setupMiddleware() {
     this.streamingHtmlMiddleware.selectAndReplaceItems = this.streamingHtmlMiddleware.selectAndReplaceItems.concat(this.listeners.responseSelectAndReplace);
     this.webServer.use(this.streamingHtmlMiddleware.selectAndReplaceCallback);    

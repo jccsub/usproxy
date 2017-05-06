@@ -9,6 +9,7 @@ import {StreamingHtmlMiddleware} from './utils/streaming-html-middleware';
 import {HarmonStreamingHtmlMiddleware} from './utils/harmon-streaming-html-middleware';
 import * as http from 'http';
 import * as httpProxy from 'http-proxy';
+import * as httpProxyMiddleware from 'http-proxy-middleware';
 
 var log = new WinstonLog();
 
@@ -63,7 +64,8 @@ class testResponseProxyListener implements ProxyListener {
 
 
 var webServer = new ConnectWebServer(log);
-var proxyEventEmitter = new httpProxy.createProxyServer({target:'http://jccsub2web.newgen.corp'});
+
+var proxyEventEmitter = httpProxy.createProxyServer({target:'http://jccsub2web.newgen.corp'});
 var harmon = new HarmonStreamingHtmlMiddleware(log);
 var proxyServer = new HttpProxyServer(proxyEventEmitter,  webServer, harmon,  log);
 
@@ -74,6 +76,6 @@ proxyServer.addRedirectListener(new testRedirectProxyListener());
 proxyServer.addParseListener(new testParseProxyListener());
 proxyServer.addErrorListener(new testErrorProxyListner());
 
-proxyServer.listen(8001);
+proxyServer.listen(8001,'');
 
 

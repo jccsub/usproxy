@@ -11,7 +11,7 @@ class HttpProxyServer {
         this.proxy = proxyEventEmitter;
         this.streamingHtmlMiddleware = streamingHtmlMiddleware;
     }
-    listen(port) {
+    listen(port, target) {
         this.setupErrorListeners();
         this.setupRequestListeners();
         this.setupResponseListeners();

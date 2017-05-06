@@ -8,5 +8,5 @@ export interface ProxyServer {
   addRequestListener(listener: ProxyListener);
   addResponseListener(listener: ProxyListener);
   addResponseSelectAndReplace(cssSelect : string, replaceString : string) ;
-  listen(port : number);
+  listen(port : number, target : string);
 }

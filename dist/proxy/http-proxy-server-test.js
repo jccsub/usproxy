@@ -38,7 +38,7 @@ class ProxyTest {
         this.proxyServer.addErrorListener(this.mockErrorListener.object);
         this.proxyServer.addResponseListener(this.mockResponseListener.object);
         this.proxyServer.addRequestListener(this.mockRequestListener.object);
-        this.proxyServer.listen(1234);
+        this.proxyServer.listen(1234, '');
         chai_1.should();
     }
 }

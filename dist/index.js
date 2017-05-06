@@ -49,7 +49,7 @@ class testResponseProxyListener {
     }
 }
 var webServer = new connect_web_server_1.ConnectWebServer(log);
-var proxyEventEmitter = new httpProxy.createProxyServer({ target: 'http://jccsub2web.newgen.corp' });
+var proxyEventEmitter = httpProxy.createProxyServer({ target: 'http://jccsub2web.newgen.corp' });
 var harmon = new harmon_streaming_html_middleware_1.HarmonStreamingHtmlMiddleware(log);
 var proxyServer = new http_proxy_server_1.HttpProxyServer(proxyEventEmitter, webServer, harmon, log);
 proxyServer.addRequestListener(new testRequestProxyListener());
@@ -58,5 +58,5 @@ proxyServer.addResponseSelectAndReplace('#ctl00_Content_Login1_lblUserName', '<l
 proxyServer.addRedirectListener(new testRedirectProxyListener());
 proxyServer.addParseListener(new testParseProxyListener());
 proxyServer.addErrorListener(new testErrorProxyListner());
-proxyServer.listen(8001);
+proxyServer.listen(8001, '');
 //# sourceMappingURL=index.js.map
