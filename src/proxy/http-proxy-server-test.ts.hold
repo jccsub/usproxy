@@ -1,3 +1,5 @@
+import { Application } from '../server/application';
+import { WebServer } from '../server/web-server';
 import { suite, test, slow, timeout } from 'mocha-typescript';
 import * as TypeMoq from 'typemoq';
 import {should} from 'chai';
@@ -6,7 +8,6 @@ import {Log} from './../logger';
 import {HttpProxyServer} from './http-proxy-server';
 import {ProxyEventEmitter} from './proxy-event-emitter';
 import {ProxyContext} from './proxy-context';
-import {WebServer} from './../webserver/web-server';
 import {ProxyListener} from './proxy-listener';
 import {MockProxyEventEmitter} from './mocks/mock-proxyevent-emitter';
 import {WinstonLog}  from './../winston-logger';
@@ -14,7 +15,7 @@ import {StreamingHtmlMiddleware, SelectAndReplaceItem} from './../utils/streamin
 import {EventEmitter} from 'events';
 
 class ProxyTest {  
-  protected mockWebServer : TypeMoq.IMock<WebServer>;
+  protected mockWebServer : TypeMoq.IMock<Application>;
   protected proxyServer : HttpProxyServer;
   protected mockErrorListener : TypeMoq.IMock<ProxyListener>;
   protected mockResponseListener : TypeMoq.IMock<ProxyListener>;
@@ -25,7 +26,7 @@ class ProxyTest {
 
   public before() {    
     this.log = new WinstonLog();   
-    this.mockWebServer = TypeMoq.Mock.ofType<WebServer>();
+    this.mockWebServer = TypeMoq.Mock.ofType<Application>();
     this.mockStreamingHtml = TypeMoq.Mock.ofType<StreamingHtmlMiddleware>();
     this.mockProxyEventEmitter = new MockProxyEventEmitter();    
     this.mockStreamingHtml.setup(x=>x.selectAndReplaceItems).returns(()=> { 

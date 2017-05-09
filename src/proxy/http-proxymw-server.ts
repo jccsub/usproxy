@@ -1,39 +1,49 @@
-
-import {ProxyServer} from './proxy-server';
-import {Log} from '../logger';
-import {ProxyListenerCollection} from './proxy-listener-collection';
-import {ProxyListener} from './proxy-listener';
-import {ProxyContext} from './proxy-context';
+import { ProxyEventEmitter } from './proxy-event-emitter';
+import { Log } from '../logger';
+import { Application } from '../server/application';
+import { WebServer } from '../server/web-server';
+import { HarmonStreamingHtmlMiddleware } from '../utils/harmon-streaming-html-middleware';
+import { ProxyContext } from './proxy-context';
+import { ProxyListener } from './proxy-listener';
+import { ProxyListenerCollection } from './proxy-listener-collection';
+import { ProxyOptions } from './proxy-options';
+import { ProxyServer } from './proxy-server';
+import { listeners } from 'cluster';
 import * as proxy from 'http-proxy-middleware';
+import { log } from 'util';
 
-import * as connect from 'connect';
-import * as http from 'http';
-import * as compression from 'compression';
-import * as bodyParser from 'body-parser';
+
 
 export class HttpProxyMiddlewareServer implements ProxyServer {
   
   private log : Log;
   private listeners : ProxyListenerCollection;
-  private proxyOptions : any;
-  private app : any;
-  private proxy : any;
+  private app : Application;
+  private webServer : WebServer;
+  private proxyOptions : ProxyOptions;
+  private proxyEventEmitter  : ProxyEventEmitter;
 
-  constructor(log: Log) {
-    this.log = log;
-    this.app = connect();
+  constructor(proxyEventEmitter: ProxyEventEmitter, webServer : WebServer, app : Application, log: Log) {
+    this.log = log;    
+    this.listeners = new ProxyListenerCollection(log);
+    this.app = app;
+    this.webServer = webServer;
+    this.proxyEventEmitter = proxyEventEmitter;
   }
 
   private executeProxyReqHandlers(proxyReq, req, res) {
-    let context = new ProxyContext();
+    this.log.debug('proxymw - executeProxyReqHandlers');
+    let context = new ProxyContext();    
     context.request.body = '';
     (req as any).context = context;
     let dataAvailable = false;
     req.on('data',(chunk) => {
+      this.log.debug('proxymw - executeProxyReqHandlers - data');
       dataAvailable = true;
       context.request.body += chunk;
     });
     req.on('end',() => {
+      this.log.debug('proxymw - executeProxyReqHandlers - end');
       context.request.url = req.url;
       context.request.host = req.headers.host;
       context.request.protocol = 'http';
@@ -95,16 +105,17 @@ export class HttpProxyMiddlewareServer implements ProxyServer {
     this.listeners.addResponseSelectAndReplace(cssSelect,replaceString);
   }
 
-  listen(port: number, target : string) {
-    this.proxy = proxy({
-      target: target,
-      changeOrigin: true,             // for vhosted sites, changes host header to match to target's host
-      logLevel: 'debug',
-      onError : (err,req,res) => { this.executeErrorHandlers(err,req,res); },
-      onProxyRes : (proxyRes,req,res) => { this.executeProxyResHandlers(proxyRes,req,res)},
-      onProxyReq : (proxyReq,req,res) => { this.executeProxyReqHandlers(proxyReq,req,res)},
-    });    
-    http.createServer(this.app).listen(port);
+
+  listen(port: number) {
+    this.proxyEventEmitter.on('error', (err, req, res) => {this.executeErrorHandlers(err,req,res)} );
+    this.proxyEventEmitter.on('proxyRes', (proxyRes, req, res) => {this.executeProxyResHandlers(proxyRes, req, res)} );
+    this.proxyEventEmitter.on('proxyReq', (proxyReq, req, res) => {this.executeProxyReqHandlers(proxyReq, req, res)} );
+   
+    var harmon = new HarmonStreamingHtmlMiddleware(this.log);
+    harmon.selectAndReplaceItems = harmon.selectAndReplaceItems.concat(this.listeners.responseSelectAndReplace);
+    this.app.use(harmon.selectAndReplaceCallback);
+    this.app.use(this.proxyEventEmitter.getRequestListener());
+    this.webServer.startServer(port, this.app.requestListener);
   }
 
 }

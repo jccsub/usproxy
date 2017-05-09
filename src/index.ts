@@ -1,12 +1,15 @@
-import {ConnectWebServer} from './webserver/connect-web-server';
-import {HttpProxyServer} from './proxy/http-proxy-server';
-import {ProxyListenerCollection} from './proxy/proxy-listener-collection';
-import {WinstonLog} from './winston-logger';
+import { HttpWebserver } from './server/http-web-server';
+import { ProxyListener } from './proxy/proxy-listener';
+import { ProxyContext } from './proxy/proxy-context';
+import { ProxyMWEventEmitter } from './proxy/http-proxy-mw-event-emitter';
 import {Log} from './logger';
-import {ProxyContext} from './proxy/proxy-context'
-import {ProxyListener} from './proxy/proxy-listener';
-import {StreamingHtmlMiddleware} from './utils/streaming-html-middleware';
-import {HarmonStreamingHtmlMiddleware} from './utils/harmon-streaming-html-middleware';
+import {WinstonLog} from './winston-logger';
+
+
+import {ConnectApplication} from './server/connect-application';
+import {HttpProxyMiddlewareServer} from './proxy/http-proxymw-server';
+
+
 import * as http from 'http';
 import * as httpProxy from 'http-proxy';
 import * as httpProxyMiddleware from 'http-proxy-middleware';
@@ -14,7 +17,6 @@ import * as httpProxyMiddleware from 'http-proxy-middleware';
 var log = new WinstonLog();
 
 
-var proxyListeners = new ProxyListenerCollection(log);
 
 function logContext(context: ProxyContext) {
   log.debug('Logging context: ');
@@ -63,12 +65,11 @@ class testResponseProxyListener implements ProxyListener {
 }
 
 
-var webServer = new ConnectWebServer(log);
+let webServer = new HttpWebserver();
+let app = new ConnectApplication();
 
-var proxyEventEmitter = httpProxy.createProxyServer({target:'http://jccsub2web.newgen.corp'});
-var harmon = new HarmonStreamingHtmlMiddleware(log);
-var proxyServer = new HttpProxyServer(proxyEventEmitter,  webServer, harmon,  log);
-
+var proxyEventEmitter = new ProxyMWEventEmitter('http://jccsub2web.newgen.corp', log);
+var proxyServer = new HttpProxyMiddlewareServer(proxyEventEmitter, webServer, app, log);
 proxyServer.addRequestListener(new testRequestProxyListener());
 proxyServer.addResponseListener(new testResponseProxyListener());
 proxyServer.addResponseSelectAndReplace('#ctl00_Content_Login1_lblUserName','<label id="ctl00_Content_Login1_lblUserName" for="ctl00_Content_Login1_UserName" localizableLabel="Username">MyUserName</label>');
@@ -76,6 +77,6 @@ proxyServer.addRedirectListener(new testRedirectProxyListener());
 proxyServer.addParseListener(new testParseProxyListener());
 proxyServer.addErrorListener(new testErrorProxyListner());
 
-proxyServer.listen(8001,'');
+proxyServer.listen(8001);
 
 

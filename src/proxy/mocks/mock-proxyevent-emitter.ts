@@ -3,6 +3,7 @@ import {EventEmitter} from 'events';
 import {ProxyEventEmitter} from '../proxy-event-emitter';
 
 export class MockProxyEventEmitter implements ProxyEventEmitter {
+  public getRequestListener() { return (req, res) => { }};
   private eventEmitter : EventEmitter = new EventEmitter();
 
 /* istanbul ignore next */

@@ -6,6 +6,8 @@ class MockProxyEventEmitter {
     constructor() {
         this.eventEmitter = new events_1.EventEmitter();
     }
+    getRequestListener() { return (req, res) => { }; }
+    ;
     /* istanbul ignore next */
     emit(name, arg1, arg2, arg3) {
         if (arg2) {

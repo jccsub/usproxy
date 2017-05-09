@@ -1,24 +1,29 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const harmon_streaming_html_middleware_1 = require("../utils/harmon-streaming-html-middleware");
 const proxy_context_1 = require("./proxy-context");
-const proxy = require("http-proxy-middleware");
-const connect = require("connect");
-const http = require("http");
+const proxy_listener_collection_1 = require("./proxy-listener-collection");
 class HttpProxyMiddlewareServer {
-    constructor(log) {
+    constructor(proxyEventEmitter, webServer, app, log) {
         this.log = log;
-        this.app = connect();
+        this.listeners = new proxy_listener_collection_1.ProxyListenerCollection(log);
+        this.app = app;
+        this.webServer = webServer;
+        this.proxyEventEmitter = proxyEventEmitter;
     }
     executeProxyReqHandlers(proxyReq, req, res) {
+        this.log.debug('proxymw - executeProxyReqHandlers');
         let context = new proxy_context_1.ProxyContext();
         context.request.body = '';
         req.context = context;
         let dataAvailable = false;
         req.on('data', (chunk) => {
+            this.log.debug('proxymw - executeProxyReqHandlers - data');
             dataAvailable = true;
             context.request.body += chunk;
         });
         req.on('end', () => {
+            this.log.debug('proxymw - executeProxyReqHandlers - end');
             context.request.url = req.url;
             context.request.host = req.headers.host;
             context.request.protocol = 'http';
@@ -70,16 +75,15 @@ class HttpProxyMiddlewareServer {
     addResponseSelectAndReplace(cssSelect, replaceString) {
         this.listeners.addResponseSelectAndReplace(cssSelect, replaceString);
     }
-    listen(port, target) {
-        this.proxy = proxy({
-            target: target,
-            changeOrigin: true,
-            logLevel: 'debug',
-            onError: (err, req, res) => { this.executeErrorHandlers(err, req, res); },
-            onProxyRes: (proxyRes, req, res) => { this.executeProxyResHandlers(proxyRes, req, res); },
-            onProxyReq: (proxyReq, req, res) => { this.executeProxyReqHandlers(proxyReq, req, res); },
-        });
-        http.createServer(this.app).listen(port);
+    listen(port) {
+        this.proxyEventEmitter.on('error', (err, req, res) => { this.executeErrorHandlers(err, req, res); });
+        this.proxyEventEmitter.on('proxyRes', (proxyRes, req, res) => { this.executeProxyResHandlers(proxyRes, req, res); });
+        this.proxyEventEmitter.on('proxyReq', (proxyReq, req, res) => { this.executeProxyReqHandlers(proxyReq, req, res); });
+        var harmon = new harmon_streaming_html_middleware_1.HarmonStreamingHtmlMiddleware(this.log);
+        harmon.selectAndReplaceItems = harmon.selectAndReplaceItems.concat(this.listeners.responseSelectAndReplace);
+        this.app.use(harmon.selectAndReplaceCallback);
+        this.app.use(this.proxyEventEmitter.getRequestListener());
+        this.webServer.startServer(port, this.app.requestListener);
     }
 }
 exports.HttpProxyMiddlewareServer = HttpProxyMiddlewareServer;
