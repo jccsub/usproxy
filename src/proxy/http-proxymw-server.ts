@@ -32,18 +32,15 @@ export class HttpProxyMiddlewareServer implements ProxyServer {
   }
 
   private executeProxyReqHandlers(proxyReq, req, res) {
-    this.log.debug('proxymw - executeProxyReqHandlers');
     let context = new ProxyContext();    
     context.request.body = '';
     (req as any).context = context;
     let dataAvailable = false;
     req.on('data',(chunk) => {
-      this.log.debug('proxymw - executeProxyReqHandlers - data');
       dataAvailable = true;
       context.request.body += chunk;
     });
     req.on('end',() => {
-      this.log.debug('proxymw - executeProxyReqHandlers - end');
       context.request.url = req.url;
       context.request.host = req.headers.host;
       context.request.protocol = 'http';
