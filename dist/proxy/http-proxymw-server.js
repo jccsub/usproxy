@@ -46,12 +46,14 @@ class HttpProxyMiddlewareServer {
     }
     executeErrorHandlers(err, req, res) {
         this.listeners.errorProxyListeners.forEach((listener) => {
+            // tslint:disable-next-line:triple-equals
             if (req != null) {
                 req.context.error = err;
                 listener.handleEvent(this.log, req.context);
             }
-            else
+            else {
                 listener.handleEvent(this.log, err);
+            }
         });
     }
     addErrorListener(proxyListener) {

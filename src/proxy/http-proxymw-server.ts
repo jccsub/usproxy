@@ -68,12 +68,14 @@ export class HttpProxyMiddlewareServer implements ProxyServer {
 
   private executeErrorHandlers(err,req,res) {
     this.listeners.errorProxyListeners.forEach((listener) => {
+        // tslint:disable-next-line:triple-equals
         if ((req as any) != null) {
           (req as any).context.error = err;
           listener.handleEvent(this.log,(req as any).context);          
         }
-        else
+        else {
           listener.handleEvent(this.log,err);        
+        }
     });
   }
 

@@ -27,7 +27,7 @@ function logContext(context: ProxyContext) {
 class testErrorProxyListner implements ProxyListener {
   handleEvent(logger: Log, context: ProxyContext): boolean {
     log.debug("testErrorProxyListenr - hello: ")
-    log.debug(`${context.toString()}`);
+//    log.debug(`${context.toString()}`);
     return false;
   }
 }
@@ -35,7 +35,7 @@ class testErrorProxyListner implements ProxyListener {
 class testParseProxyListener implements ProxyListener {
   handleEvent(logger: Log, context: ProxyContext): boolean {
     log.debug('Hello from testParsePRoxyListener');
-    log.debug(`${context.toString()}`);
+//    log.debug(`${context.toString()}`);
     return false;
   }
 }
@@ -43,7 +43,7 @@ class testParseProxyListener implements ProxyListener {
 class testRedirectProxyListener implements ProxyListener {
   handleEvent(logger: Log, context: ProxyContext): boolean {
     log.debug('Hello from testRedirectProxyListener');
-    log.debug(`${context.toString()}`);
+//    log.debug(`${context.toString()}`);
     return false;
   }
 }
@@ -51,7 +51,7 @@ class testRedirectProxyListener implements ProxyListener {
 class testRequestProxyListener implements ProxyListener {
   handleEvent(logger: Log, context: ProxyContext): boolean {
     log.debug('Hello from testRequestProxyListener');
-    log.debug(`${context.toString()}`);
+//    log.debug(`${context.toString()}`);
     return false;
   }
 }
@@ -59,7 +59,7 @@ class testRequestProxyListener implements ProxyListener {
 class testResponseProxyListener implements ProxyListener {
   handleEvent(logger: Log, context: ProxyContext): boolean {
     log.debug('Hello from testResponseProxyListener');
-    log.debug(`${context.toString()}`);
+//    log.debug(`${context.toString()}`);
     return false;
   }
 }

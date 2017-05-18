@@ -14,35 +14,35 @@ function logContext(context) {
 class testErrorProxyListner {
     handleEvent(logger, context) {
         log.debug("testErrorProxyListenr - hello: ");
-        log.debug(`${context.toString()}`);
+        //    log.debug(`${context.toString()}`);
         return false;
     }
 }
 class testParseProxyListener {
     handleEvent(logger, context) {
         log.debug('Hello from testParsePRoxyListener');
-        log.debug(`${context.toString()}`);
+        //    log.debug(`${context.toString()}`);
         return false;
     }
 }
 class testRedirectProxyListener {
     handleEvent(logger, context) {
         log.debug('Hello from testRedirectProxyListener');
-        log.debug(`${context.toString()}`);
+        //    log.debug(`${context.toString()}`);
         return false;
     }
 }
 class testRequestProxyListener {
     handleEvent(logger, context) {
         log.debug('Hello from testRequestProxyListener');
-        log.debug(`${context.toString()}`);
+        //    log.debug(`${context.toString()}`);
         return false;
     }
 }
 class testResponseProxyListener {
     handleEvent(logger, context) {
         log.debug('Hello from testResponseProxyListener');
-        log.debug(`${context.toString()}`);
+        //    log.debug(`${context.toString()}`);
         return false;
     }
 }

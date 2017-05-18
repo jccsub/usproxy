@@ -20,6 +20,7 @@ export class ProxyMWEventEmitter implements ProxyEventEmitter {
       target: target,
       changeOrigin: true,             // for vhosted sites, changes host header to match to target's host
       logLevel: this.log.level,
+      pathRewrite: (path, req) => { return this.rewritePath(path, req); },
       onError : (err,req,res) => { this.notifyListeners('error',err,req,res); },
       onProxyRes : (proxyRes,req,res) => { this.notifyListeners('proxyRes',proxyRes,req,res); },
       onProxyReq : (proxyReq,req,res) => { this.notifyListeners('proxyReq',proxyReq,req,res)},
@@ -27,9 +28,16 @@ export class ProxyMWEventEmitter implements ProxyEventEmitter {
 
   }
 
+  private rewritePath(path, req) {
+    this.log.debug('Re-writing path');
+    
+    return path.replace('/stylesheets/EESummary.css','/stylesheets/EESummaryNew.css');
+  }
+
 /* istanbul ignore next */
   public on(eventName: string, callback: Function) {
-    if (this.map[eventName] === null) {
+    // tslint:disable-next-line:triple-equals
+    if (this.map[eventName] == null) {
       this.map[eventName] = new Array<Function>();
     }
     this.map[eventName].push(callback);
