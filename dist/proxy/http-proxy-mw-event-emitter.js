@@ -11,15 +11,23 @@ class ProxyMWEventEmitter {
             target: target,
             changeOrigin: true,
             logLevel: this.log.level,
-            pathRewrite: (path, req) => { return this.rewritePath(path, req); },
+            pathRewrite: (path, req) => {
+                req.newPath = '';
+                if (req.context != null) {
+                    this.log.debug('context is defined');
+                }
+                else {
+                    this.log.debug('context is undefined');
+                }
+                this.notifyListeners('pathRewrite', req, {}, {});
+                if (req.newPath) {
+                    return req.newPath;
+                }
+            },
             onError: (err, req, res) => { this.notifyListeners('error', err, req, res); },
             onProxyRes: (proxyRes, req, res) => { this.notifyListeners('proxyRes', proxyRes, req, res); },
             onProxyReq: (proxyReq, req, res) => { this.notifyListeners('proxyReq', proxyReq, req, res); },
         });
-    }
-    rewritePath(path, req) {
-        this.log.debug('Re-writing path');
-        return path.replace('/stylesheets/EESummary.css', '/stylesheets/EESummaryNew.css');
     }
     /* istanbul ignore next */
     on(eventName, callback) {

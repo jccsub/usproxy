@@ -3,17 +3,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const proxy_context_1 = require("./proxy-context");
 const proxy_listener_collection_1 = require("./proxy-listener-collection");
 class HttpProxyMiddlewareServer {
-    constructor(proxyEventEmitter, webServer, app, log) {
+    constructor(proxyEventEmitter, webServer, app, selectAndReplaceFactory, log) {
         this.log = log;
         this.listeners = new proxy_listener_collection_1.ProxyListenerCollection(log);
         this.app = app;
         this.webServer = webServer;
         this.proxyEventEmitter = proxyEventEmitter;
+        this.selectAndReplaceFactory = selectAndReplaceFactory;
+    }
+    initializeContextIfNotInitialized(req) {
+        let context = req.context;
+        // tslint:disable-next-line:triple-equals
+        if (context == null) {
+            req.context = new proxy_context_1.ProxyContext();
+        }
+        return req.context;
     }
     executeProxyReqHandlers(proxyReq, req, res) {
-        let context = new proxy_context_1.ProxyContext();
+        let context = this.initializeContextIfNotInitialized(req);
         context.request.body = '';
-        req.context = context;
         let dataAvailable = false;
         req.on('data', (chunk) => {
             dataAvailable = true;
@@ -30,17 +38,15 @@ class HttpProxyMiddlewareServer {
         });
     }
     executeProxyResHandlers(proxyRes, req, res) {
-        let context = req.context;
         let dataAvailable = false;
-        var selects = [];
-        var simpleselect = {};
-        simpleselect.query = '#ENDPOINTS';
-        simpleselect.func = function (node) {
-            node.createWriteStream().end('<div>+ Trumpet</div>');
-        };
-        selects.push(simpleselect);
-        var x = require('harmon')([], selects);
-        x(req, res, () => { this.log.info('next would have been called'); });
+        let context = req.context;
+        this.listeners.selectAndReplaceListeners.forEach((listener) => {
+            listener.handleEvent(this.log, context);
+        });
+        let selectAndReplacer = this.selectAndReplaceFactory.create(this.log);
+        this.log.debug(`executeProxyResHandlers - selectAndReplaceItems count = ${context.selectAndReplaceItems.length}`);
+        selectAndReplacer.addSelectAndReplaceItems(context.selectAndReplaceItems);
+        selectAndReplacer.execute(req, res);
         proxyRes.on('data', (chunk) => {
             context.response.body += chunk.toString('utf8');
         });
@@ -73,6 +79,13 @@ class HttpProxyMiddlewareServer {
             });
         }
     }
+    executePathRewriteHandlers(req) {
+        let context = this.initializeContextIfNotInitialized(req);
+        // tslint:disable-next-line:triple-equals
+        this.listeners.pathRewriteListeners.forEach((listener) => {
+            listener.handleEvent(this.log, context);
+        });
+    }
     addErrorListener(proxyListener) {
         this.listeners.addErrorListener(proxyListener);
     }
@@ -91,14 +104,12 @@ class HttpProxyMiddlewareServer {
     addSelectAndReplaceListener(listener) {
         this.listeners.addSelectAndReplaceListener(listener);
     }
-    addResponseSelectAndReplace(cssSelect, replaceString) {
-        this.listeners.addResponseSelectAndReplace(cssSelect, replaceString);
-    }
     listen(port) {
         let x = 0;
         this.proxyEventEmitter.on('error', (err, req, res) => { this.executeErrorHandlers(err, req, res); });
         this.proxyEventEmitter.on('proxyRes', (proxyRes, req, res) => { this.executeProxyResHandlers(proxyRes, req, res); });
         this.proxyEventEmitter.on('proxyReq', (proxyReq, req, res) => { this.executeProxyReqHandlers(proxyReq, req, res); });
+        this.proxyEventEmitter.on('pathRewrite', (req) => { this.executePathRewriteHandlers(req); req.newPath = req.context.rewritePath; });
         this.app.use(this.proxyEventEmitter.getRequestListener());
         //    this.app.use(harmon.selectAndReplaceCallback);
         this.webServer.startServer(port, this.app.requestListener);

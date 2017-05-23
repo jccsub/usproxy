@@ -23,8 +23,11 @@ class HttpProxyMiddlewareServerTest {
         this.log = new winston_logger_1.WinstonLog();
         this.app = TypeMoq.Mock.ofType();
         this.webServer = TypeMoq.Mock.ofType();
+        this.replacerFactory = TypeMoq.Mock.ofType();
+        this.replacer = TypeMoq.Mock.ofType();
+        this.replacerFactory.setup(x => x.create(this.log)).returns(() => { return this.replacer.object; });
         this.proxyEventEmitter = new mock_proxyevent_emitter_1.MockProxyEventEmitter();
-        this.underTest = new http_proxymw_server_1.HttpProxyMiddlewareServer(this.proxyEventEmitter, this.webServer.object, this.app.object, this.log);
+        this.underTest = new http_proxymw_server_1.HttpProxyMiddlewareServer(this.proxyEventEmitter, this.webServer.object, this.app.object, this.replacerFactory.object, this.log);
     }
 }
 let EncountersError = class EncountersError extends HttpProxyMiddlewareServerTest {

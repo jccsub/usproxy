@@ -20,21 +20,26 @@ export class ProxyMWEventEmitter implements ProxyEventEmitter {
       target: target,
       changeOrigin: true,             // for vhosted sites, changes host header to match to target's host
       logLevel: this.log.level,
-      pathRewrite: (path, req) => { return this.rewritePath(path, req); },
+      pathRewrite: (path, req) => { 
+        (req as any).newPath = '';
+        if ((req as any).context != null) {
+          this.log.debug('context is defined');
+        }
+        else {
+          this.log.debug('context is undefined');
+        }
+        this.notifyListeners('pathRewrite', req, {}, {}); 
+        if (req.newPath) {
+          return req.newPath;
+        }
+      },
       onError : (err,req,res) => { this.notifyListeners('error',err,req,res); },
       onProxyRes : (proxyRes,req,res) => { this.notifyListeners('proxyRes',proxyRes,req,res); },
       onProxyReq : (proxyReq,req,res) => { this.notifyListeners('proxyReq',proxyReq,req,res)},
     });    
-
   }
 
-  private rewritePath(path, req) {
-    this.log.debug('Re-writing path');
-    
-    return path.replace('/stylesheets/EESummary.css','/stylesheets/EESummaryNew.css');
-  }
-
-/* istanbul ignore next */
+  /* istanbul ignore next */
   public on(eventName: string, callback: Function) {
     // tslint:disable-next-line:triple-equals
     if (this.map[eventName] == null) {

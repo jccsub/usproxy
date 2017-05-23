@@ -8,6 +8,7 @@ class ProxyContext {
         this.response = new proxy_response_1.ProxyResponse();
         this.request = new proxy_request_1.ProxyRequest();
         this.selectAndReplaceItems = new Array();
+        this.rewritePath = '';
         this.dataMap = new data_map_1.DataMap();
     }
     /* istanbul ignore next */

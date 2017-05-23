@@ -1,3 +1,5 @@
+import { SelectAndReplaceItem } from './proxy/response-select-and-replace';
+import { HarmonResponseSelectAndReplaceFactory } from './proxy/harmon-response-select-and-replace';
 import { HttpWebserver } from './server/http-web-server';
 import { ProxyListener } from './proxy/proxy-listener';
 import { ProxyContext } from './proxy/proxy-context';
@@ -64,18 +66,39 @@ class testResponseProxyListener implements ProxyListener {
   }
 }
 
+class TestResponseSelectAndReplaceListener implements ProxyListener {
+  handleEvent(Logger: Log, context : ProxyContext) {
+    log.debug('TestResponseSelectAndReplaceListener.handleEvent');
+    let item = new SelectAndReplaceItem('#ENDPOINTS','<h2>MYTITLE</h2>');
+    context.selectAndReplaceItems.push(item);
+  }
+}
+
+class TestResponseSelectAndReplaceListener2 implements ProxyListener {
+  handleEvent(Logger: Log, context : ProxyContext) {
+    log.debug('TestResponseSelectAndReplaceListener.handleEvent');
+    let item = new SelectAndReplaceItem('h1','<h1>Replaced Title!!</h1>');
+    context.selectAndReplaceItems.push(item);
+  }
+}
+
+
 
 let webServer = new HttpWebserver();
 let app = new ConnectApplication();
 
 var proxyEventEmitter = new ProxyMWEventEmitter('http://httpbin.org/', log);
-var proxyServer = new HttpProxyMiddlewareServer(proxyEventEmitter, webServer, app, log);
+var selectAndReplaceFactory = new HarmonResponseSelectAndReplaceFactory();
+var proxyServer = new HttpProxyMiddlewareServer(proxyEventEmitter, webServer, app, selectAndReplaceFactory, log);
 proxyServer.addRequestListener(new testRequestProxyListener());
 proxyServer.addResponseListener(new testResponseProxyListener());
-proxyServer.addResponseSelectAndReplace('#ENDPOINTS','<h2>MYTITLE</h2>');
+//proxyServer.addResponseSelectAndReplace();
 proxyServer.addRedirectListener(new testRedirectProxyListener());
 proxyServer.addParseListener(new testParseProxyListener());
 proxyServer.addErrorListener(new testErrorProxyListner());
+proxyServer.addSelectAndReplaceListener(new TestResponseSelectAndReplaceListener());
+proxyServer.addSelectAndReplaceListener(new TestResponseSelectAndReplaceListener2());
+
 
 proxyServer.listen(8001);
 

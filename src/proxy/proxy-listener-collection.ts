@@ -1,6 +1,6 @@
+import { SelectAndReplaceItem } from './response-select-and-replace';
 
 import {ProxyListener} from './proxy-listener';
-import {StreamingHtmlMiddleware,SelectAndReplaceItem} from '../utils/streaming-html-middleware';
 import {ProxyContext} from './proxy-context';
 import {Log} from '../logger';
 import * as http from 'http';
@@ -15,7 +15,7 @@ export class ProxyListenerCollection {
   public readonly requestProxyListeners : Array<ProxyListener> = [];
   public readonly responseProxyListeners : Array<ProxyListener> = [];
   public readonly selectAndReplaceListeners : Array<ProxyListener> = [];
-  public readonly responseSelectAndReplace : Array<SelectAndReplaceItem> = [];
+  public readonly pathRewriteListeners : Array<ProxyListener> = [];
 
   private log : Log;
   
@@ -49,9 +49,9 @@ export class ProxyListenerCollection {
     this.selectAndReplaceListeners.push(listener);
   }
 
-  public addResponseSelectAndReplace(cssSelect : string, replaceString : string)  {
-    this.log.debug(`adding ${cssSelect}`);
-    this.responseSelectAndReplace.push(new SelectAndReplaceItem(cssSelect,replaceString));
+  public addPathRewriteListener(listener: ProxyListener) {
+    this.pathRewriteListeners.push(listener);
   }
+
 
 }

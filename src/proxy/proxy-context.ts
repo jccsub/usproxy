@@ -1,5 +1,4 @@
-import { SelectAndReplaceItem } from '../utils/streaming-html-middleware';
-
+import { SelectAndReplaceItem } from './response-select-and-replace';
 import * as http from 'http';
 import {DataMap} from './data-map';
 import {ProxyRequest} from './proxy-request';
@@ -12,6 +11,8 @@ export class ProxyContext {
   public request : ProxyRequest = new ProxyRequest();
 
   public selectAndReplaceItems : Array<SelectAndReplaceItem> = new Array<SelectAndReplaceItem>();
+
+  public rewritePath : string = '';
 
   public error : Error;
 

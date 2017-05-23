@@ -1,15 +1,10 @@
+import { Log } from '../logger';
 
 
 export class SelectAndReplaceItem {
   public readonly replace: string;
   public readonly select: string;
-  public readonly urlPattern: RegExp;
-  constructor(urlPattern: RegExp, select: string, replace: string) {
-    // tslint:disable-next-line:triple-equals
-    if (urlPattern == null) {
-      throw new Error('urlPattern cannot be null');
-    }
-    this.urlPattern = urlPattern;
+  constructor(select: string, replace: string) {
     this.select = select;
     this.replace = replace;
   }
@@ -22,4 +17,8 @@ export interface ResponseSelectAndReplace {
 
   addSelectAndReplaceItems(selectAndReplaceItems : Array<SelectAndReplaceItem>);
 
+}
+
+export interface ResponseSelectAndReplaceFactory {
+  create(log : Log) : ResponseSelectAndReplace;
 }

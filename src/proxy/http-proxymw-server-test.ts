@@ -1,3 +1,4 @@
+import { ResponseSelectAndReplace, ResponseSelectAndReplaceFactory } from './response-select-and-replace';
 import { Log } from '../logger';
 import { Application } from '../server/application';
 import { WebServer } from '../server/web-server';
@@ -13,14 +14,13 @@ import * as TypeMoq from 'typemoq';
 
 var should = chai.should();
 
-
-
-
-
 class HttpProxyMiddlewareServerTest {
   protected log : Log;
   protected webServer : TypeMoq.IMock<WebServer>;
   protected app : TypeMoq.IMock<Application>;
+  protected replacerFactory : TypeMoq.IMock<ResponseSelectAndReplaceFactory>;
+
+  protected replacer : TypeMoq.IMock<ResponseSelectAndReplace>;
   protected underTest : HttpProxyMiddlewareServer;
   protected proxyEventEmitter : MockProxyEventEmitter;
 
@@ -28,8 +28,11 @@ class HttpProxyMiddlewareServerTest {
     this.log = new WinstonLog();
     this.app = TypeMoq.Mock.ofType<Application>();
     this.webServer =  TypeMoq.Mock.ofType<WebServer>();
+    this.replacerFactory = TypeMoq.Mock.ofType<ResponseSelectAndReplaceFactory>();
+    this.replacer = TypeMoq.Mock.ofType<ResponseSelectAndReplace>();
+    this.replacerFactory.setup(x=>x.create(this.log)).returns(() => {return this.replacer.object});
     this.proxyEventEmitter = new MockProxyEventEmitter();
-    this.underTest = new HttpProxyMiddlewareServer(this.proxyEventEmitter, this.webServer.object,this.app.object, this.log);        
+    this.underTest = new HttpProxyMiddlewareServer(this.proxyEventEmitter, this.webServer.object,this.app.object, this.replacerFactory.object, this.log);        
   }
 }
 
@@ -100,7 +103,6 @@ class EmitsProxyReqEvent extends HttpProxyMiddlewareServerTest {
   proxyContextContainsEmptyBody() {
     var x = ((this.req as any).context as ProxyContext).request.body.should.be.empty;
   }
-
 }
 
 @suite("HttpProxyMiddlewareServer's proxyReq emits a data event")
@@ -288,5 +290,5 @@ class ProxyResEmitsEndEvent extends EmitsProxyResEvent {
     this.proxyRes.emit('end');                
     ((this.req as any).context as ProxyContext).response.body.should.equal(`${this.data}${this.data}`);
   }
-  
+ 
 }
