@@ -9,6 +9,7 @@ class ProxyListenerCollection {
         this.redirectProxyListeners = [];
         this.requestProxyListeners = [];
         this.responseProxyListeners = [];
+        this.selectAndReplaceListeners = [];
         this.responseSelectAndReplace = [];
         this.log = logger;
     }
@@ -26,6 +27,9 @@ class ProxyListenerCollection {
     }
     addResponseListener(listener) {
         this.responseProxyListeners.push(listener);
+    }
+    addSelectAndReplaceListener(listener) {
+        this.selectAndReplaceListeners.push(listener);
     }
     addResponseSelectAndReplace(cssSelect, replaceString) {
         this.log.debug(`adding ${cssSelect}`);

@@ -68,11 +68,11 @@ class testResponseProxyListener implements ProxyListener {
 let webServer = new HttpWebserver();
 let app = new ConnectApplication();
 
-var proxyEventEmitter = new ProxyMWEventEmitter('http://jccsub2web.newgen.corp', log);
+var proxyEventEmitter = new ProxyMWEventEmitter('http://httpbin.org/', log);
 var proxyServer = new HttpProxyMiddlewareServer(proxyEventEmitter, webServer, app, log);
 proxyServer.addRequestListener(new testRequestProxyListener());
 proxyServer.addResponseListener(new testResponseProxyListener());
-proxyServer.addResponseSelectAndReplace('#ctl00_Content_Login1_lblUserName','<label id="ctl00_Content_Login1_lblUserName" for="ctl00_Content_Login1_UserName" localizableLabel="Username">MyUserName</label>');
+proxyServer.addResponseSelectAndReplace('#ENDPOINTS','<h2>MYTITLE</h2>');
 proxyServer.addRedirectListener(new testRedirectProxyListener());
 proxyServer.addParseListener(new testParseProxyListener());
 proxyServer.addErrorListener(new testErrorProxyListner());

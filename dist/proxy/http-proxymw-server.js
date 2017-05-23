@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const harmon_streaming_html_middleware_1 = require("../utils/harmon-streaming-html-middleware");
 const proxy_context_1 = require("./proxy-context");
 const proxy_listener_collection_1 = require("./proxy-listener-collection");
 class HttpProxyMiddlewareServer {
@@ -33,6 +32,15 @@ class HttpProxyMiddlewareServer {
     executeProxyResHandlers(proxyRes, req, res) {
         let context = req.context;
         let dataAvailable = false;
+        var selects = [];
+        var simpleselect = {};
+        simpleselect.query = '#ENDPOINTS';
+        simpleselect.func = function (node) {
+            node.createWriteStream().end('<div>+ Trumpet</div>');
+        };
+        selects.push(simpleselect);
+        var x = require('harmon')([], selects);
+        x(req, res, () => { this.log.info('next would have been called'); });
         proxyRes.on('data', (chunk) => {
             context.response.body += chunk.toString('utf8');
         });
@@ -56,6 +64,15 @@ class HttpProxyMiddlewareServer {
             }
         });
     }
+    executeSelectAndReplaceHandlers(req, res) {
+        let context = req.context;
+        // tslint:disable-next-line:triple-equals
+        if (context != null) {
+            this.listeners.selectAndReplaceListeners.forEach((listener) => {
+                listener.handleEvent(this.log, context);
+            });
+        }
+    }
     addErrorListener(proxyListener) {
         this.listeners.addErrorListener(proxyListener);
     }
@@ -71,17 +88,19 @@ class HttpProxyMiddlewareServer {
     addResponseListener(listener) {
         this.listeners.addResponseListener(listener);
     }
+    addSelectAndReplaceListener(listener) {
+        this.listeners.addSelectAndReplaceListener(listener);
+    }
     addResponseSelectAndReplace(cssSelect, replaceString) {
         this.listeners.addResponseSelectAndReplace(cssSelect, replaceString);
     }
     listen(port) {
+        let x = 0;
         this.proxyEventEmitter.on('error', (err, req, res) => { this.executeErrorHandlers(err, req, res); });
         this.proxyEventEmitter.on('proxyRes', (proxyRes, req, res) => { this.executeProxyResHandlers(proxyRes, req, res); });
         this.proxyEventEmitter.on('proxyReq', (proxyReq, req, res) => { this.executeProxyReqHandlers(proxyReq, req, res); });
-        var harmon = new harmon_streaming_html_middleware_1.HarmonStreamingHtmlMiddleware(this.log);
-        harmon.selectAndReplaceItems = harmon.selectAndReplaceItems.concat(this.listeners.responseSelectAndReplace);
-        this.app.use(harmon.selectAndReplaceCallback);
         this.app.use(this.proxyEventEmitter.getRequestListener());
+        //    this.app.use(harmon.selectAndReplaceCallback);
         this.webServer.startServer(port, this.app.requestListener);
     }
 }

@@ -48,11 +48,11 @@ class testResponseProxyListener {
 }
 let webServer = new http_web_server_1.HttpWebserver();
 let app = new connect_application_1.ConnectApplication();
-var proxyEventEmitter = new http_proxy_mw_event_emitter_1.ProxyMWEventEmitter('http://jccsub2web.newgen.corp', log);
+var proxyEventEmitter = new http_proxy_mw_event_emitter_1.ProxyMWEventEmitter('http://httpbin.org/', log);
 var proxyServer = new http_proxymw_server_1.HttpProxyMiddlewareServer(proxyEventEmitter, webServer, app, log);
 proxyServer.addRequestListener(new testRequestProxyListener());
 proxyServer.addResponseListener(new testResponseProxyListener());
-proxyServer.addResponseSelectAndReplace('#ctl00_Content_Login1_lblUserName', '<label id="ctl00_Content_Login1_lblUserName" for="ctl00_Content_Login1_UserName" localizableLabel="Username">MyUserName</label>');
+proxyServer.addResponseSelectAndReplace('#ENDPOINTS', '<h2>MYTITLE</h2>');
 proxyServer.addRedirectListener(new testRedirectProxyListener());
 proxyServer.addParseListener(new testParseProxyListener());
 proxyServer.addErrorListener(new testErrorProxyListner());

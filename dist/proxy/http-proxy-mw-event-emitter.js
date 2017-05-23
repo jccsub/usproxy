@@ -23,6 +23,7 @@ class ProxyMWEventEmitter {
     }
     /* istanbul ignore next */
     on(eventName, callback) {
+        // tslint:disable-next-line:triple-equals
         if (this.map[eventName] == null) {
             this.map[eventName] = new Array();
         }

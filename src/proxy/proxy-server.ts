@@ -7,5 +7,9 @@ export interface ProxyServer {
   addRedirectListener(listener : ProxyListener);
   addRequestListener(listener: ProxyListener);
   addResponseListener(listener: ProxyListener);
+
+  addSelectAndReplaceListener(listener : ProxyListener);
+
   addResponseSelectAndReplace(cssSelect : string, replaceString : string) ;
+  
   listen(port : number);}

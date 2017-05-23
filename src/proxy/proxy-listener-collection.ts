@@ -14,7 +14,9 @@ export class ProxyListenerCollection {
   public readonly redirectProxyListeners : Array<ProxyListener> = [];
   public readonly requestProxyListeners : Array<ProxyListener> = [];
   public readonly responseProxyListeners : Array<ProxyListener> = [];
+  public readonly selectAndReplaceListeners : Array<ProxyListener> = [];
   public readonly responseSelectAndReplace : Array<SelectAndReplaceItem> = [];
+
   private log : Log;
   
 
@@ -42,6 +44,10 @@ export class ProxyListenerCollection {
   public addResponseListener(listener: ProxyListener) {
     this.responseProxyListeners.push(listener);
   }  
+
+  public addSelectAndReplaceListener(listener: ProxyListener) {
+    this.selectAndReplaceListeners.push(listener);
+  }
 
   public addResponseSelectAndReplace(cssSelect : string, replaceString : string)  {
     this.log.debug(`adding ${cssSelect}`);

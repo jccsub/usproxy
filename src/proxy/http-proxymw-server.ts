@@ -1,3 +1,4 @@
+import { ResponseSelectAndReplace } from './response-select-and-replace';
 import { ProxyEventEmitter } from './proxy-event-emitter';
 import { Log } from '../logger';
 import { Application } from '../server/application';
@@ -22,13 +23,15 @@ export class HttpProxyMiddlewareServer implements ProxyServer {
   private webServer : WebServer;
   private proxyOptions : ProxyOptions;
   private proxyEventEmitter  : ProxyEventEmitter;
+  private selectAndReplacer : ResponseSelectAndReplace;
 
-  constructor(proxyEventEmitter: ProxyEventEmitter, webServer : WebServer, app : Application, log: Log) {
+  constructor(proxyEventEmitter: ProxyEventEmitter, webServer : WebServer, app : Application, selectAndReplacer: ResponseSelectAndReplace, log: Log) {
     this.log = log;    
     this.listeners = new ProxyListenerCollection(log);
     this.app = app;
     this.webServer = webServer;
     this.proxyEventEmitter = proxyEventEmitter;
+    this.selectAndReplacer = selectAndReplacer;
   }
 
   private executeProxyReqHandlers(proxyReq, req, res) {
@@ -54,8 +57,23 @@ export class HttpProxyMiddlewareServer implements ProxyServer {
   private executeProxyResHandlers(proxyRes,req,res) {
     let context = ((req as any).context as ProxyContext);
     let dataAvailable = false;
+
+    var selects : any = [];
+    var simpleselect : any = {};
+
+    (simpleselect as any).query = '#ENDPOINTS';
+    (simpleselect as any).func = function (node) {
+        node.createWriteStream().end('<div>+ Trumpet</div>');
+    }    
+
+    selects.push(simpleselect);
+
+    var x = require('harmon')([], selects);
+    x(req,res,()=>{this.log.info('next would have been called')});
+
+
     proxyRes.on('data', (chunk) => {
-      context.response.body += chunk.toString('utf8');
+      context.response.body += chunk.toString('utf8');      
     });
     proxyRes.on('end', () => {
       context.response.headers = proxyRes.headers;
@@ -79,6 +97,16 @@ export class HttpProxyMiddlewareServer implements ProxyServer {
     });
   }
 
+  private executeSelectAndReplaceHandlers(req, res) {
+    let context = ((req as any).context as ProxyContext);
+    // tslint:disable-next-line:triple-equals
+    if (context != null) {
+      this.listeners.selectAndReplaceListeners.forEach((listener) => {
+        listener.handleEvent(this.log, context);
+      });
+    }
+  }
+
 
   public addErrorListener(proxyListener: ProxyListener) {
     this.listeners.addErrorListener(proxyListener);
@@ -100,20 +128,26 @@ export class HttpProxyMiddlewareServer implements ProxyServer {
     this.listeners.addResponseListener(listener);
   }  
 
+
+  public addSelectAndReplaceListener(listener : ProxyListener) {
+    this.listeners.addSelectAndReplaceListener(listener);
+  }
+  
+
   public addResponseSelectAndReplace(cssSelect : string, replaceString : string)  {
     this.listeners.addResponseSelectAndReplace(cssSelect,replaceString);
   }
 
-
   listen(port: number) {
+    let x = 0;
     this.proxyEventEmitter.on('error', (err, req, res) => {this.executeErrorHandlers(err,req,res)} );
     this.proxyEventEmitter.on('proxyRes', (proxyRes, req, res) => {this.executeProxyResHandlers(proxyRes, req, res)} );
     this.proxyEventEmitter.on('proxyReq', (proxyReq, req, res) => {this.executeProxyReqHandlers(proxyReq, req, res)} );
-   
-    var harmon = new HarmonStreamingHtmlMiddleware(this.log);
-    harmon.selectAndReplaceItems = harmon.selectAndReplaceItems.concat(this.listeners.responseSelectAndReplace);
-    this.app.use(harmon.selectAndReplaceCallback);
+
+
     this.app.use(this.proxyEventEmitter.getRequestListener());
+
+//    this.app.use(harmon.selectAndReplaceCallback);
     this.webServer.startServer(port, this.app.requestListener);
   }
 

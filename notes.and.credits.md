@@ -33,6 +33,7 @@
     - [Notes on Node's Http server](#notes-on-nodes-http-server)
     - [Notes on Listening to Http-Proxy Traffic](#notes-on-listening-to-http-proxy-traffic)
   - [Additional Helpful Links](#additional-helpful-links)
+    - [Continuation-Local-Storage](#continuation-local-storage)
     - [Method overloading](#method-overloading)
     - [Debugging ES6 in VS Code](#debugging-es6-in-vs-code)
     - [Debugging Mocha Tests](#debugging-mocha-tests)
@@ -210,6 +211,19 @@ Notes from this [stackoverflow answer](http://stackoverflow.com/a/32186243)
 
 
 ## Additional Helpful Links
+
+### Continuation-Local-Storage
+Sort of like thread-local-storage in Windows. In my case, Harmon allows me to provide a callback that looks something like this:
+
+```javascript
+(element) => {
+  ...do stuff to the html element
+}
+```
+
+The callback is setup during the initialization process. You get one-shot to provide the What I want to do is to provide a way that I can dynamically add other callbacks that are called in a sequence during the '...do stuff to the html element' and to provide context (request, response, etc.) so that the callbacks can make decisions as to what to replace and what to keep. In that case, the call back above will have to have access to at least the request object.
+
+This [stackoverflow](http://stackoverflow.com/a/29073047) post explains exactly how to do that. 
 
 ### Method overloading
 See [StackOverflow post](http://stackoverflow.com/a/12689054)

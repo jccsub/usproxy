@@ -8,6 +8,7 @@ class SelectAndReplaceItem {
     get cssSelector() { return this.selector; }
     ;
     get replacementHtml() { return this.replacement; }
+    get urlPattern() { return this.urlRegEx; }
 }
 exports.SelectAndReplaceItem = SelectAndReplaceItem;
 //# sourceMappingURL=streaming-html-middleware.js.map

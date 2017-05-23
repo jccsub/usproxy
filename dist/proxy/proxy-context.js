@@ -7,6 +7,7 @@ class ProxyContext {
     constructor() {
         this.response = new proxy_response_1.ProxyResponse();
         this.request = new proxy_request_1.ProxyRequest();
+        this.selectAndReplaceItems = new Array();
         this.dataMap = new data_map_1.DataMap();
     }
     /* istanbul ignore next */
@@ -14,15 +15,19 @@ class ProxyContext {
         let result = '';
         result += '\n---------------------------------------';
         result += '\ncontext = {\n';
-        if (this.error != null)
+        // tslint:disable-next-line:triple-equals
+        if (this.error != null) {
             result += `\n\terror-message: ${this.error.message}`;
+        }
         result += `\n\trequest-body: ${this.request.body}`;
         result += `\n\trequest-url: ${this.request.fullUrl}`;
         result += `\n\trequest-method: ${this.request.method}`;
         result += `\n\tresponse-headers: ${JSON.stringify(this.response.headers)}`;
         result += `\n\tdataMap:`;
-        if (this.dataMap != null)
+        // tslint:disable-next-line:triple-equals
+        if (this.dataMap != null) {
             result += `\n${this.dataMap.toString()}`;
+        }
         result += '\n---------------------------------------';
         return result;
     }
