@@ -57,15 +57,15 @@ class TestResponseSelectAndReplaceListener {
     handleEvent(Logger, context) {
         log.debug('TestResponseSelectAndReplaceListener.handleEvent');
         //let item = new SelectAndReplaceItem('#ENDPOINTS','<h2>MYTITLE</h2>');
-        let item = new response_select_and_replace_1.SelectAndReplaceItem('#ENDPOINTS', '<div style="color:red"> - additional text</div>');
-        context.selectAndReplaceItems.push(item);
+        let item = new response_select_and_replace_1.HtmlModification('#ENDPOINTS', '<div style="color:red"> - additional text</div>', response_select_and_replace_1.HtmlChangeType.Append);
+        context.htmlModifications.push(item);
     }
 }
 class TestResponseSelectAndReplaceListener2 {
     handleEvent(Logger, context) {
         log.debug('TestResponseSelectAndReplaceListener.handleEvent');
-        let item = new response_select_and_replace_1.SelectAndReplaceItem('h1', '<h1>Replaced Title!!</h1>');
-        context.selectAndReplaceItems.push(item);
+        let item = new response_select_and_replace_1.HtmlModification('h1', '<h1>Replaced Title!!</h1>', response_select_and_replace_1.HtmlChangeType.Replace);
+        context.htmlModifications.push(item);
     }
 }
 //# sourceMappingURL=httpbin-test-setup.js.map

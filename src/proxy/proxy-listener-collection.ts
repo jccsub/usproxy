@@ -1,4 +1,4 @@
-import { SelectAndReplaceItem } from './response-select-and-replace';
+import { HtmlModification } from './response-select-and-replace';
 
 import {ProxyListener} from './proxy-listener';
 import {ProxyContext} from './proxy-context';

@@ -1,7 +1,7 @@
 import { ProxyContext } from './proxy-context';
 import { JsonDataMap } from '../mapper/json-data-map';
 import { Log } from '../logger';
-import { SelectAndReplaceItem } from './response-select-and-replace';
+import { HtmlModification } from './response-select-and-replace';
 import * as http from 'http';
 import {DataMap} from '../mapper/data-map';
 import {ProxyRequest} from './proxy-request';
@@ -14,7 +14,7 @@ export class JsonProxyContext implements ProxyContext {
 
   public request : ProxyRequest = new ProxyRequest();
 
-  public selectAndReplaceItems : Array<SelectAndReplaceItem> = new Array<SelectAndReplaceItem>();
+  public htmlModifications : Array<HtmlModification> = new Array<HtmlModification>();
 
   public rewritePath : string = '';
 

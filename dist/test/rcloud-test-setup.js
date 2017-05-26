@@ -15,8 +15,8 @@ exports.RCloudTestSetup = RCloudTestSetup;
 class TestResponseSelectAndReplaceListener {
     handleEvent(Logger, context) {
         log.debug('TestResponseSelectAndReplaceListener.handleEvent');
-        let item = new response_select_and_replace_1.SelectAndReplaceItem('#ctl00_Content_EntityDataSource1', '<h2>Chad\'s text</h2><span id="ctl00_Content_EntityDataSource1"></span>');
-        context.selectAndReplaceItems.push(item);
+        let item = new response_select_and_replace_1.HtmlModification('#ctl00_Content_EntityDataSource1', '<h2>Chad\'s text</h2><span id="ctl00_Content_EntityDataSource1"></span>', response_select_and_replace_1.HtmlChangeType.Replace);
+        context.htmlModifications.push(item);
     }
 }
 //# sourceMappingURL=rcloud-test-setup.js.map

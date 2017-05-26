@@ -7,7 +7,7 @@ class MockProxyContext {
     constructor(log) {
         this.response = new proxy_response_1.ProxyResponse();
         this.request = new proxy_request_1.ProxyRequest();
-        this.selectAndReplaceItems = new Array();
+        this.htmlModifications = new Array();
         this.rewritePath = '';
         this.dataMap = new mock_datamap_1.MockDataMap();
         this.log = log;

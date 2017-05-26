@@ -44,8 +44,8 @@ class HttpProxyMiddlewareServer {
             listener.handleEvent(this.log, context);
         });
         let selectAndReplacer = this.selectAndReplaceFactory.create(this.log);
-        this.log.debug(`executeProxyResHandlers - selectAndReplaceItems count = ${context.selectAndReplaceItems.length}`);
-        selectAndReplacer.addSelectAndReplaceItems(context.selectAndReplaceItems);
+        this.log.debug(`executeProxyResHandlers - selectAndReplaceItems count = ${context.htmlModifications.length}`);
+        selectAndReplacer.addSelectAndReplaceItems(context.htmlModifications);
         selectAndReplacer.execute(req, res);
         proxyRes.on('data', (chunk) => {
             context.response.body += chunk.toString('utf8');

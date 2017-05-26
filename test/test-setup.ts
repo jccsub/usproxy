@@ -1,7 +1,7 @@
 import { ProxyContext } from '../src/proxy/proxy-context';
 import { UriRequestParser } from '../src/mapper/uri-request-parser';
 
-import { ContextMapperProxyRequestListener } from '../src/mapper/context-mapper';
+import { DataMapper } from '../src/mapper/context-mapper';
 import { TestProxyPersistor } from './test-proxy-persistor';
 import { HttpWebserver } from '../src/server/http-web-server';
 import { ConnectApplication } from '../src/server/connect-application';
@@ -55,7 +55,7 @@ export class TestSetup {
     let proxyEventEmitter = new ProxyMWEventEmitter(this.target,this.log);
     let selectAndReplaceFactory = new HarmonResponseSelectAndReplaceFactory();
     let proxyServer = new HttpProxyMiddlewareServer(proxyEventEmitter, new HttpWebserver(), new ConnectApplication(), selectAndReplaceFactory, this.log );
-    this.requestListeners.push(new ContextMapperProxyRequestListener(new UriRequestParser(this.log),this.log));
+    this.requestListeners.push(new DataMapper(new UriRequestParser(this.log),this.log));
     this.responseListeners.push(new ContextLogger(this.log));
     this.errorListeners.forEach((listener) => {proxyServer.addErrorListener(listener)});
     this.parseListeners.forEach((listener) => {proxyServer.addParseListener(listener)});

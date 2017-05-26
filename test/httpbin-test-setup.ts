@@ -1,5 +1,5 @@
 import { TestSetup } from './test-setup';
-import { SelectAndReplaceItem } from '../src/proxy/response-select-and-replace';
+import { HtmlChangeType, HtmlModification } from '../src/proxy/response-select-and-replace';
 import { WinstonLog } from '../src/winston-logger';
 import { ProxyListener } from '../src/proxy/proxy-listener';
 import { ProxyContext } from '../src/proxy/proxy-context';
@@ -68,15 +68,15 @@ class TestResponseSelectAndReplaceListener implements ProxyListener {
   handleEvent(Logger: Log, context : ProxyContext) {
     log.debug('TestResponseSelectAndReplaceListener.handleEvent');
     //let item = new SelectAndReplaceItem('#ENDPOINTS','<h2>MYTITLE</h2>');
-    let item = new SelectAndReplaceItem('#ENDPOINTS','<div style="color:red"> - additional text</div>');
-    context.selectAndReplaceItems.push(item);
+    let item = new HtmlModification('#ENDPOINTS','<div style="color:red"> - additional text</div>',HtmlChangeType.Append);
+    context.htmlModifications.push(item);
   }
 }
 
 class TestResponseSelectAndReplaceListener2 implements ProxyListener {
   handleEvent(Logger: Log, context : ProxyContext) {
     log.debug('TestResponseSelectAndReplaceListener.handleEvent');
-    let item = new SelectAndReplaceItem('h1','<h1>Replaced Title!!</h1>');
-    context.selectAndReplaceItems.push(item);
+    let item = new HtmlModification('h1','<h1>Replaced Title!!</h1>', HtmlChangeType.Replace);
+    context.htmlModifications.push(item);
   }
 }

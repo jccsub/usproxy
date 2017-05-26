@@ -6,7 +6,7 @@ import { ProxyListener } from '../proxy/proxy-listener';
 import * as body from 'body';
 
 
-export class ContextMapperProxyRequestListener implements ProxyListener {
+export class DataMapper implements ProxyListener {
   private log : Log;
   private parser : RequestParser;
 

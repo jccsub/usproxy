@@ -7,7 +7,7 @@ class JsonProxyContext {
     constructor(log) {
         this.response = new proxy_response_1.ProxyResponse();
         this.request = new proxy_request_1.ProxyRequest();
-        this.selectAndReplaceItems = new Array();
+        this.htmlModifications = new Array();
         this.rewritePath = '';
         this.log = log;
         this.dataMap = new json_data_map_1.JsonDataMap(log);
