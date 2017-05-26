@@ -1,3 +1,6 @@
+import { MockProxyContext } from './mocks/mock-proxy-context';
+import { WinstonLog } from '../winston-logger';
+import { Log } from '../logger';
 
 import {suite, test} from 'mocha-typescript';
 import {ProxyContext} from './proxy-context';
@@ -7,10 +10,12 @@ import {should} from 'chai';
 class ProxyContextIsCreated {
 
   private proxyContext : ProxyContext;
+  private log : Log;
 
   before() {
     should();
-    this.proxyContext = new ProxyContext();
+    this.log = new WinstonLog();
+    this.proxyContext = new MockProxyContext(this.log);
   }
 
   @test responsePropertyShouldBeInitialized() {    

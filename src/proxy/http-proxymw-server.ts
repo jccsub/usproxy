@@ -1,3 +1,4 @@
+import { JsonProxyContext } from './json-proxy-context';
 import { ResponseSelectAndReplace, ResponseSelectAndReplaceFactory } from './response-select-and-replace';
 import { ProxyEventEmitter } from './proxy-event-emitter';
 import { Log } from '../logger';
@@ -11,11 +12,11 @@ import { ProxyServer } from './proxy-server';
 import { listeners } from 'cluster';
 import * as proxy from 'http-proxy-middleware';
 import { log } from 'util';
+import { ProxyContextPersistor } from "./proxy-context-persistor";
 
 
 
 export class HttpProxyMiddlewareServer implements ProxyServer {
-
   private log : Log;
   private listeners : ProxyListenerCollection;
   private app : Application;
@@ -23,8 +24,12 @@ export class HttpProxyMiddlewareServer implements ProxyServer {
   private proxyOptions : ProxyOptions;
   private proxyEventEmitter  : ProxyEventEmitter;
   private selectAndReplaceFactory : ResponseSelectAndReplaceFactory;
-
-  constructor(proxyEventEmitter: ProxyEventEmitter, webServer : WebServer, app : Application, selectAndReplaceFactory: ResponseSelectAndReplaceFactory, log: Log) {
+  constructor(
+    proxyEventEmitter: ProxyEventEmitter, 
+    webServer : WebServer, 
+    app : Application, 
+    selectAndReplaceFactory: ResponseSelectAndReplaceFactory, 
+    log: Log) {
     this.log = log;    
     this.listeners = new ProxyListenerCollection(log);
     this.app = app;
@@ -37,7 +42,7 @@ export class HttpProxyMiddlewareServer implements ProxyServer {
     let context = req.context;
     // tslint:disable-next-line:triple-equals
     if (context == null) {
-      req.context = new ProxyContext();
+      req.context = new JsonProxyContext(this.log);
     }
     return req.context;
   }
@@ -82,6 +87,7 @@ export class HttpProxyMiddlewareServer implements ProxyServer {
       this.listeners.responseProxyListeners.forEach((listener) => {
         listener.handleEvent(this.log, context);
       });
+    
     });   
   }
 

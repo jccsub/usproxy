@@ -39,14 +39,29 @@ export class HarmonResponseSelectAndReplace implements ResponseSelectAndReplace 
     this.selectAndReplaceItems = this.selectAndReplaceItems.concat(selectAndReplaceItems);
   }
 
+
   private convertSelectAndReplaceToQueryFunctionList(selectAndReplaceItems : Array<SelectAndReplaceItem>) : any {
     this.log.debug(`convertSelectAndReplaceToQueryFunctionList called with ${selectAndReplaceItems.length} items`);
     let selects : any = [];
     selectAndReplaceItems.forEach((item) => {
+
+
       let singleSelect : any = {};
       (singleSelect as any).query = item.select;
       (singleSelect as any).func = (node) => {
-        node.createWriteStream().end(item.replace);
+        
+        var out = item.replace;
+        var rs = node.createReadStream();
+        var ws = node.createWriteStream({outer: false});
+
+        // Read the node and put it back into our write stream, 
+        // but don't end the write stream when the readStream is closed.
+        rs.pipe(ws, {end: false});
+
+        // When the read stream has ended, attach our style to the end
+        rs.on('end', function(){
+        ws.end(out);
+        });
       }
       selects.push(singleSelect);
     });
@@ -54,5 +69,23 @@ export class HarmonResponseSelectAndReplace implements ResponseSelectAndReplace 
   }
   
 
+
+/*
+  private convertSelectAndReplaceToQueryFunctionList(selectAndReplaceItems : Array<SelectAndReplaceItem>) : any {
+    this.log.debug(`convertSelectAndReplaceToQueryFunctionList called with ${selectAndReplaceItems.length} items`);
+    let selects : any = [];
+    selectAndReplaceItems.forEach((item) => {
+      let singleSelect : any = {};
+      (singleSelect as any).query = item.select;
+      (singleSelect as any).func = (node) => {
+        
+        node.createWriteStream().end(item.replace);
+      }
+      selects.push(singleSelect);
+    });
+    return selects;
+  }
+  
+*/
 
 }

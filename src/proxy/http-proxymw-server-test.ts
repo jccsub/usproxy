@@ -1,3 +1,4 @@
+import { MockProxyContext } from './mocks/mock-proxy-context';
 import { ResponseSelectAndReplace, ResponseSelectAndReplaceFactory } from './response-select-and-replace';
 import { Log } from '../logger';
 import { Application } from '../server/application';
@@ -11,6 +12,7 @@ import * as chai from 'chai';
 import { EventEmitter } from 'events';
 import { suite, test } from 'mocha-typescript';
 import * as TypeMoq from 'typemoq';
+import { ProxyContextPersistor } from "./proxy-context-persistor";
 
 var should = chai.should();
 
@@ -32,7 +34,12 @@ class HttpProxyMiddlewareServerTest {
     this.replacer = TypeMoq.Mock.ofType<ResponseSelectAndReplace>();
     this.replacerFactory.setup(x=>x.create(this.log)).returns(() => {return this.replacer.object});
     this.proxyEventEmitter = new MockProxyEventEmitter();
-    this.underTest = new HttpProxyMiddlewareServer(this.proxyEventEmitter, this.webServer.object,this.app.object, this.replacerFactory.object, this.log);        
+    this.underTest = new HttpProxyMiddlewareServer(
+      this.proxyEventEmitter, 
+      this.webServer.object,
+      this.app.object, 
+      this.replacerFactory.object, 
+      this.log);        
   }
 }
 
@@ -62,7 +69,7 @@ class EncountersError extends HttpProxyMiddlewareServerTest {
     let proxyReq = new EventEmitter();
     let req = new EventEmitter();
     let called : boolean = false;
-    this.errorListener.setup(x=>x.handleEvent(TypeMoq.It.isAny(), TypeMoq.It.isAnyObject(ProxyContext))).callback((l : Log,c : ProxyContext) => {
+    this.errorListener.setup(x=>x.handleEvent(TypeMoq.It.isAny(), TypeMoq.It.isAny())).callback((l : Log,c : ProxyContext) => {
       called = true;
       c.request.body.should.equal('TestData');
     });
@@ -220,7 +227,7 @@ class EmitsProxyResEvent extends HttpProxyMiddlewareServerTest {
     (this.proxyRes as any).headers.push(this.headerText);
     (this.proxyRes as any).statusCode = this.statusCodeText;
     this.underTest.addResponseListener(this.proxyResponseListener.object);
-    (this.req as any).context = new ProxyContext();
+    (this.req as any).context = new MockProxyContext(this.log);
     this.underTest.listen(1234);    
     this.proxyEventEmitter.emit('proxyRes', this.proxyRes, this.req, this.res);    
   }
@@ -244,12 +251,12 @@ class ProxyResEmitsDataEvent extends EmitsProxyResEvent {
 
   @test
   dataIsInTheProxyContext() {
-    ((this.req as any).context as ProxyContext).response.body.should.equal(this.data);
+    ((this.req as any).context as MockProxyContext).response.body.should.equal(this.data);
   }
 
   @test
   handleEventIsNotCalled() {
-    this.proxyResponseListener.verify(x=>x.handleEvent(TypeMoq.It.isAny(), TypeMoq.It.isAnyObject(ProxyContext)), TypeMoq.Times.never());
+    this.proxyResponseListener.verify(x=>x.handleEvent(TypeMoq.It.isAny(), TypeMoq.It.isAny()), TypeMoq.Times.never());
   }
 
 }
@@ -267,20 +274,20 @@ class ProxyResEmitsEndEvent extends EmitsProxyResEvent {
   handleEventIsCalled() {
     this.proxyRes.emit('data',this.data);    
     this.proxyRes.emit('end');                
-    this.proxyResponseListener.verify(x=>x.handleEvent(TypeMoq.It.isAny(), TypeMoq.It.isAnyObject(ProxyContext)), TypeMoq.Times.once());
+    this.proxyResponseListener.verify(x=>x.handleEvent(TypeMoq.It.isAny(), TypeMoq.It.isAny()), TypeMoq.Times.once());
   }
 
   @test
   proxyContextContainsHeaders() {
     this.proxyRes.emit('end');                
-    ((this.req as any).context as ProxyContext).response.headers.length.should.equal(1);
-    ((this.req as any).context as ProxyContext).response.headers[0].should.equal(this.headerText);
+    ((this.req as any).context as MockProxyContext).response.headers.length.should.equal(1);
+    ((this.req as any).context as MockProxyContext).response.headers[0].should.equal(this.headerText);
   }
   
   @test
   proxyContextContainsStatusCode() {
     this.proxyRes.emit('end');                
-    ((this.req as any).context as ProxyContext).response.statusCode.should.equal(this.statusCodeText);
+    ((this.req as any).context as MockProxyContext).response.statusCode.should.equal(this.statusCodeText);
   }
 
   @test
@@ -288,7 +295,7 @@ class ProxyResEmitsEndEvent extends EmitsProxyResEvent {
     this.proxyRes.emit('data',this.data);    
     this.proxyRes.emit('data',this.data);        
     this.proxyRes.emit('end');                
-    ((this.req as any).context as ProxyContext).response.body.should.equal(`${this.data}${this.data}`);
+    ((this.req as any).context as MockProxyContext).response.body.should.equal(`${this.data}${this.data}`);
   }
  
 }

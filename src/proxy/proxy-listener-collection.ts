@@ -16,14 +16,11 @@ export class ProxyListenerCollection {
   public readonly responseProxyListeners : Array<ProxyListener> = [];
   public readonly selectAndReplaceListeners : Array<ProxyListener> = [];
   public readonly pathRewriteListeners : Array<ProxyListener> = [];
-
   private log : Log;
-  
 
   constructor(logger : Log ) {
     this.log = logger;
   }
-
 
   public addErrorListener(listener: ProxyListener) {
     this.errorProxyListeners.push(listener);

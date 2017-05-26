@@ -1,0 +1,1 @@
+{"version":3,"file":"connect-application.js","sourceRoot":"","sources":["../../../src/server/connect-application.ts"],"names":[],"mappings":";;AAIA,mCAAmC;AAEnC;IAGE;QACE,IAAI,CAAC,GAAG,GAAG,OAAO,EAAE,CAAC;IACvB,CAAC;IAED,IAAI,eAAe;QACjB,MAAM,CAAE,IAAI,CAAC,GAAoE,CAAC;IACpF,CAAC;IAED,GAAG,CAAC,QAAkB;QACpB,IAAI,CAAC,GAAG,CAAC,GAAG,CAAC,QAAQ,CAAC,CAAC;IACzB,CAAC;CAGF;AAhBD,gDAgBC"}

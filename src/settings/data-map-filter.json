@@ -1,0 +1,10 @@
+{
+  "_EVENTTARGET" : ".delete",
+  "_EVENTARGUMENT" : ".delete",
+  "_LASTFOCUS" : ".delete",
+  "_VIEWSTATE" : ".delete",
+  "__VIEWSTATEGENERATOR" : ".delete",
+  "__EVENTVALIDATION" : ".delete",
+  "^\\$UserName$" : "UserName",
+  "^\\$Password$" : "Password"
+}
