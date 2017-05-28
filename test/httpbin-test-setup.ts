@@ -25,7 +25,7 @@ export class HttpBinTestSetup extends TestSetup {
 }
 
 class TestErrorProxyListner implements ProxyListener {
-  handleEvent(logger: Log, context: ProxyContext): boolean {
+  handleEvent(context: ProxyContext): boolean {
     log.debug("testErrorProxyListenr - hello: ")
 //    log.debug(`${context.toString()}`);
     return false;
@@ -33,7 +33,7 @@ class TestErrorProxyListner implements ProxyListener {
 }
 
 class TestParseProxyListener implements ProxyListener {
-  handleEvent(logger: Log, context: ProxyContext): boolean {
+  handleEvent(context: ProxyContext): boolean {
     log.debug('Hello from testParsePRoxyListener');
 //    log.debug(`${context.toString()}`);
     return false;
@@ -41,7 +41,7 @@ class TestParseProxyListener implements ProxyListener {
 }
 
 class TestRedirectProxyListener implements ProxyListener {
-  handleEvent(logger: Log, context: ProxyContext): boolean {
+  handleEvent(context: ProxyContext): boolean {
     log.debug('Hello from testRedirectProxyListener');
 //    log.debug(`${context.toString()}`);
     return false;
@@ -49,7 +49,7 @@ class TestRedirectProxyListener implements ProxyListener {
 }
 
 class TestRequestProxyListener implements ProxyListener {
-  handleEvent(logger: Log, context: ProxyContext): boolean {
+  handleEvent(context: ProxyContext): boolean {
     log.debug('Hello from testRequestProxyListener');
 //    log.debug(`${context.toString()}`);
     return false;
@@ -57,7 +57,7 @@ class TestRequestProxyListener implements ProxyListener {
 }
 
 class TestResponseProxyListener implements ProxyListener {
-  handleEvent(logger: Log, context: ProxyContext): boolean {
+  handleEvent(context: ProxyContext): boolean {
     log.debug('Hello from testResponseProxyListener');
 //    log.debug(`${context.toString()}`);
     return false;
@@ -65,7 +65,7 @@ class TestResponseProxyListener implements ProxyListener {
 }
 
 class TestResponseSelectAndReplaceListener implements ProxyListener {
-  handleEvent(Logger: Log, context : ProxyContext) {
+  handleEvent(context : ProxyContext) {
     log.debug('TestResponseSelectAndReplaceListener.handleEvent');
     //let item = new SelectAndReplaceItem('#ENDPOINTS','<h2>MYTITLE</h2>');
     let item = new HtmlModification('#ENDPOINTS','<div style="color:red"> - additional text</div>',HtmlChangeType.Append);
@@ -74,7 +74,7 @@ class TestResponseSelectAndReplaceListener implements ProxyListener {
 }
 
 class TestResponseSelectAndReplaceListener2 implements ProxyListener {
-  handleEvent(Logger: Log, context : ProxyContext) {
+  handleEvent(context : ProxyContext) {
     log.debug('TestResponseSelectAndReplaceListener.handleEvent');
     let item = new HtmlModification('h1','<h1>Replaced Title!!</h1>', HtmlChangeType.Replace);
     context.htmlModifications.push(item);

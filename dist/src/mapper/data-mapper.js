@@ -8,29 +8,34 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-const winston_logger_1 = require("../winston-logger");
-const mocha_typescript_1 = require("mocha-typescript");
-const chai_1 = require("chai");
-const data_map_1 = require("./data-map");
-let DataMapToString = class DataMapToString {
-    before() {
-        chai_1.should();
-        this.log = new winston_logger_1.WinstonLog();
-        this.dataMap = new data_map_1.DataMap(this.log);
-    }
-    shouldReturnString() {
-        this.dataMap.toString().should.not.be.empty;
-    }
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
 };
+Object.defineProperty(exports, "__esModule", { value: true });
+const guards_1 = require("../utils/guards");
+const proxy_context_1 = require("../proxy/proxy-context");
+class DataMapper {
+    constructor(parser, log) {
+        this.log = log;
+        this.parser = parser;
+    }
+    handleEvent(context) {
+        let proxyContext = context;
+        if (proxyContext.request.body) {
+            let parsedBody = this.parse(proxyContext.request.body);
+            proxyContext.dataMap.addContent(parsedBody);
+        }
+    }
+    parse(body) {
+        return this.parser.parse(body);
+    }
+}
 __decorate([
-    mocha_typescript_1.test,
+    guards_1.guarded,
+    __param(0, guards_1.notNull),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [proxy_context_1.ProxyContext]),
     __metadata("design:returntype", void 0)
-], DataMapToString.prototype, "shouldReturnString", null);
-DataMapToString = __decorate([
-    mocha_typescript_1.suite
-], DataMapToString);
-exports.DataMapToString = DataMapToString;
-//# sourceMappingURL=data-map-test.js.map
+], DataMapper.prototype, "handleEvent", null);
+exports.DataMapper = DataMapper;
+//# sourceMappingURL=data-mapper.js.map

@@ -1,7 +1,20 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const json_proxy_context_1 = require("./json-proxy-context");
+const proxy_context_1 = require("./proxy-context");
 const proxy_listener_collection_1 = require("./proxy-listener-collection");
+const guards_1 = require("../utils/guards");
 class HttpProxyMiddlewareServer {
     constructor(proxyEventEmitter, webServer, app, selectAndReplaceFactory, log) {
         this.log = log;
@@ -15,7 +28,7 @@ class HttpProxyMiddlewareServer {
         let context = req.context;
         // tslint:disable-next-line:triple-equals
         if (context == null) {
-            req.context = new json_proxy_context_1.JsonProxyContext(this.log);
+            req.context = new proxy_context_1.ProxyContext(this.log);
         }
         return req.context;
     }
@@ -33,18 +46,21 @@ class HttpProxyMiddlewareServer {
             context.request.protocol = 'http';
             context.request.method = req.method;
             this.listeners.requestProxyListeners.forEach((listener) => {
-                listener.handleEvent(this.log, context);
+                listener.handleEvent(context);
             });
         });
     }
     executeProxyResHandlers(proxyRes, req, res) {
         let dataAvailable = false;
         let context = req.context;
+        // tslint:disable-next-line:triple-equals
+        if (context == null) {
+            throw new Error('HttpProxyMiddlewareServer.executeProxyResHandlers - req.context cannot be null');
+        }
         this.listeners.selectAndReplaceListeners.forEach((listener) => {
-            listener.handleEvent(this.log, context);
+            listener.handleEvent(context);
         });
         let selectAndReplacer = this.selectAndReplaceFactory.create(this.log);
-        this.log.debug(`executeProxyResHandlers - selectAndReplaceItems count = ${context.htmlModifications.length}`);
         selectAndReplacer.addSelectAndReplaceItems(context.htmlModifications);
         selectAndReplacer.execute(req, res);
         proxyRes.on('data', (chunk) => {
@@ -54,7 +70,7 @@ class HttpProxyMiddlewareServer {
             context.response.headers = proxyRes.headers;
             context.response.statusCode = proxyRes.statusCode;
             this.listeners.responseProxyListeners.forEach((listener) => {
-                listener.handleEvent(this.log, context);
+                listener.handleEvent(context);
             });
         });
     }
@@ -63,10 +79,10 @@ class HttpProxyMiddlewareServer {
             // tslint:disable-next-line:triple-equals
             if (req != null) {
                 req.context.error = err;
-                listener.handleEvent(this.log, req.context);
+                listener.handleEvent(req.context);
             }
             else {
-                listener.handleEvent(this.log, err);
+                listener.handleEvent(err);
             }
         });
     }
@@ -75,7 +91,7 @@ class HttpProxyMiddlewareServer {
         // tslint:disable-next-line:triple-equals
         if (context != null) {
             this.listeners.selectAndReplaceListeners.forEach((listener) => {
-                listener.handleEvent(this.log, context);
+                listener.handleEvent(context);
             });
         }
     }
@@ -83,7 +99,7 @@ class HttpProxyMiddlewareServer {
         let context = this.initializeContextIfNotInitialized(req);
         // tslint:disable-next-line:triple-equals
         this.listeners.pathRewriteListeners.forEach((listener) => {
-            listener.handleEvent(this.log, context);
+            listener.handleEvent(context);
         });
     }
     addErrorListener(proxyListener) {
@@ -111,9 +127,15 @@ class HttpProxyMiddlewareServer {
         this.proxyEventEmitter.on('proxyReq', (proxyReq, req, res) => { this.executeProxyReqHandlers(proxyReq, req, res); });
         this.proxyEventEmitter.on('pathRewrite', (req) => { this.executePathRewriteHandlers(req); req.newPath = req.context.rewritePath; });
         this.app.use(this.proxyEventEmitter.getRequestListener());
-        //    this.app.use(harmon.selectAndReplaceCallback);
         this.webServer.startServer(port, this.app.requestListener);
     }
 }
+__decorate([
+    guards_1.guarded,
+    __param(0, guards_1.notNull),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", void 0)
+], HttpProxyMiddlewareServer.prototype, "listen", null);
 exports.HttpProxyMiddlewareServer = HttpProxyMiddlewareServer;
 //# sourceMappingURL=http-proxymw-server.js.map

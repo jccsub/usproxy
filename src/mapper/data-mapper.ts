@@ -1,3 +1,4 @@
+import { guarded, notNull } from '../utils/guards';
 import { RequestParser } from './request-parser';
 import { Log } from '../logger';
 import { ProxyContext } from '../proxy/proxy-context';
@@ -15,12 +16,13 @@ export class DataMapper implements ProxyListener {
     this.parser = parser;
   }
 
-  public handleEvent(logger: Log, context: ProxyContext | Error): void {
-    this.log.debug(`ContextMapperProxyRequestListener.handleEvent`);
+
+  @guarded
+  public handleEvent(@notNull context: ProxyContext ): void {
+    
     let proxyContext = context as ProxyContext;
     if (proxyContext.request.body) {
       let parsedBody = this.parse(proxyContext.request.body);
-      this.log.debug(`ContextMapperProxyRequestListener.handleEvent - body = ${proxyContext.request.body}`);      
       proxyContext.dataMap.addContent(parsedBody);      
     }
   }

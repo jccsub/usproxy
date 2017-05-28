@@ -19,42 +19,42 @@ class HttpBinTestSetup extends test_setup_1.TestSetup {
 }
 exports.HttpBinTestSetup = HttpBinTestSetup;
 class TestErrorProxyListner {
-    handleEvent(logger, context) {
+    handleEvent(context) {
         log.debug("testErrorProxyListenr - hello: ");
         //    log.debug(`${context.toString()}`);
         return false;
     }
 }
 class TestParseProxyListener {
-    handleEvent(logger, context) {
+    handleEvent(context) {
         log.debug('Hello from testParsePRoxyListener');
         //    log.debug(`${context.toString()}`);
         return false;
     }
 }
 class TestRedirectProxyListener {
-    handleEvent(logger, context) {
+    handleEvent(context) {
         log.debug('Hello from testRedirectProxyListener');
         //    log.debug(`${context.toString()}`);
         return false;
     }
 }
 class TestRequestProxyListener {
-    handleEvent(logger, context) {
+    handleEvent(context) {
         log.debug('Hello from testRequestProxyListener');
         //    log.debug(`${context.toString()}`);
         return false;
     }
 }
 class TestResponseProxyListener {
-    handleEvent(logger, context) {
+    handleEvent(context) {
         log.debug('Hello from testResponseProxyListener');
         //    log.debug(`${context.toString()}`);
         return false;
     }
 }
 class TestResponseSelectAndReplaceListener {
-    handleEvent(Logger, context) {
+    handleEvent(context) {
         log.debug('TestResponseSelectAndReplaceListener.handleEvent');
         //let item = new SelectAndReplaceItem('#ENDPOINTS','<h2>MYTITLE</h2>');
         let item = new response_select_and_replace_1.HtmlModification('#ENDPOINTS', '<div style="color:red"> - additional text</div>', response_select_and_replace_1.HtmlChangeType.Append);
@@ -62,7 +62,7 @@ class TestResponseSelectAndReplaceListener {
     }
 }
 class TestResponseSelectAndReplaceListener2 {
-    handleEvent(Logger, context) {
+    handleEvent(context) {
         log.debug('TestResponseSelectAndReplaceListener.handleEvent');
         let item = new response_select_and_replace_1.HtmlModification('h1', '<h1>Replaced Title!!</h1>', response_select_and_replace_1.HtmlChangeType.Replace);
         context.htmlModifications.push(item);

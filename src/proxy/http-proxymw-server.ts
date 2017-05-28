@@ -1,4 +1,3 @@
-import { JsonProxyContext } from './json-proxy-context';
 import { ResponseSelectAndReplace, ResponseSelectAndReplaceFactory } from './response-select-and-replace';
 import { ProxyEventEmitter } from './proxy-event-emitter';
 import { Log } from '../logger';
@@ -13,6 +12,8 @@ import { listeners } from 'cluster';
 import * as proxy from 'http-proxy-middleware';
 import { log } from 'util';
 import { ProxyContextPersistor } from "./proxy-context-persistor";
+import {guarded,notNull} from '../utils/guards';
+
 
 
 
@@ -42,7 +43,7 @@ export class HttpProxyMiddlewareServer implements ProxyServer {
     let context = req.context;
     // tslint:disable-next-line:triple-equals
     if (context == null) {
-      req.context = new JsonProxyContext(this.log);
+      req.context = new ProxyContext(this.log);
     }
     return req.context;
   }
@@ -61,7 +62,7 @@ export class HttpProxyMiddlewareServer implements ProxyServer {
       context.request.protocol = 'http';
       context.request.method = req.method;
       this.listeners.requestProxyListeners.forEach((listener) => {
-        listener.handleEvent(this.log, context);
+        listener.handleEvent(context);
       });
     });
   }
@@ -70,12 +71,16 @@ export class HttpProxyMiddlewareServer implements ProxyServer {
     let dataAvailable = false;
     let context = ((req as any).context as ProxyContext);
 
+    // tslint:disable-next-line:triple-equals
+    if (context == null) {
+      throw new Error('HttpProxyMiddlewareServer.executeProxyResHandlers - req.context cannot be null');
+    }
+
     this.listeners.selectAndReplaceListeners.forEach((listener) => {
-      listener.handleEvent(this.log, context);
+      listener.handleEvent(context);
     });
 
     let selectAndReplacer = this.selectAndReplaceFactory.create(this.log);
-    this.log.debug(`executeProxyResHandlers - selectAndReplaceItems count = ${context.htmlModifications.length}`);
     selectAndReplacer.addSelectAndReplaceItems(context.htmlModifications);
     selectAndReplacer.execute(req, res)
     proxyRes.on('data', (chunk) => {
@@ -85,7 +90,7 @@ export class HttpProxyMiddlewareServer implements ProxyServer {
       context.response.headers = proxyRes.headers;
       context.response.statusCode = proxyRes.statusCode;                     
       this.listeners.responseProxyListeners.forEach((listener) => {
-        listener.handleEvent(this.log, context);
+        listener.handleEvent(context);
       });
     
     });   
@@ -94,12 +99,12 @@ export class HttpProxyMiddlewareServer implements ProxyServer {
   private executeErrorHandlers(err,req,res) {
     this.listeners.errorProxyListeners.forEach((listener) => {
         // tslint:disable-next-line:triple-equals
-        if ((req as any) != null) {
+        if (req != null) {
           (req as any).context.error = err;
-          listener.handleEvent(this.log,(req as any).context);          
+          listener.handleEvent((req as any).context);          
         }
         else {
-          listener.handleEvent(this.log,err);        
+          listener.handleEvent(err);        
         }
     });
   }
@@ -109,7 +114,7 @@ export class HttpProxyMiddlewareServer implements ProxyServer {
     // tslint:disable-next-line:triple-equals
     if (context != null) {
       this.listeners.selectAndReplaceListeners.forEach((listener) => {
-        listener.handleEvent(this.log, context);
+        listener.handleEvent(context);
       });
     }
   }
@@ -118,7 +123,7 @@ export class HttpProxyMiddlewareServer implements ProxyServer {
     let context = this.initializeContextIfNotInitialized(req);
     // tslint:disable-next-line:triple-equals
     this.listeners.pathRewriteListeners.forEach((listener) => {
-      listener.handleEvent(this.log, context);
+      listener.handleEvent(context);
     });
   }
 
@@ -147,17 +152,14 @@ export class HttpProxyMiddlewareServer implements ProxyServer {
     this.listeners.addSelectAndReplaceListener(listener);
   }
   
-  listen(port: number) {
+  @guarded
+  listen(@notNull port: number) {
     let x = 0;
     this.proxyEventEmitter.on('error', (err, req, res) => {this.executeErrorHandlers(err,req,res)} );
     this.proxyEventEmitter.on('proxyRes', (proxyRes, req, res) => {this.executeProxyResHandlers(proxyRes, req, res)} );
     this.proxyEventEmitter.on('proxyReq', (proxyReq, req, res) => {this.executeProxyReqHandlers(proxyReq, req, res)} );
     this.proxyEventEmitter.on('pathRewrite', (req) => { this.executePathRewriteHandlers(req);  (req as any).newPath = (req as any).context.rewritePath; } )
-
-
     this.app.use(this.proxyEventEmitter.getRequestListener());
-
-//    this.app.use(harmon.selectAndReplaceCallback);
     this.webServer.startServer(port, this.app.requestListener);
   }
 

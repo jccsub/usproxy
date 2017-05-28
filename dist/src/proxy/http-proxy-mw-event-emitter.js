@@ -13,6 +13,7 @@ class ProxyMWEventEmitter {
             logLevel: this.log.level,
             pathRewrite: (path, req) => {
                 req.newPath = '';
+                // tslint:disable-next-line:triple-equals
                 if (req.context != null) {
                     this.log.debug('context is defined');
                 }

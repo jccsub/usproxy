@@ -9,10 +9,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const mock_proxy_context_1 = require("./mocks/mock-proxy-context");
 const winston_logger_1 = require("../winston-logger");
 const http_proxymw_server_1 = require("./http-proxymw-server");
 const mock_proxyevent_emitter_1 = require("./mocks/mock-proxyevent-emitter");
+const proxy_context_1 = require("./proxy-context");
 const chai = require("chai");
 const events_1 = require("events");
 const mocha_typescript_1 = require("mocha-typescript");
@@ -39,13 +39,13 @@ let EncountersError = class EncountersError extends HttpProxyMiddlewareServerTes
     }
     ifBeforeAProxyRequestHandleEventsAreCalledWithErrorObject() {
         this.proxyEventEmitter.emit('error', new Error('Error Message Goes Here'));
-        this.errorListener.verify(x => x.handleEvent(TypeMoq.It.isAny(), TypeMoq.It.isAnyObject(Error)), TypeMoq.Times.once());
+        this.errorListener.verify(x => x.handleEvent(TypeMoq.It.isAnyObject(Error)), TypeMoq.Times.once());
     }
     ifAfterAProxyRequestHandleEventsAreCalledWithContextObject() {
         let proxyReq = new events_1.EventEmitter();
         let req = new events_1.EventEmitter();
         let called = false;
-        this.errorListener.setup(x => x.handleEvent(TypeMoq.It.isAny(), TypeMoq.It.isAny())).callback((l, c) => {
+        this.errorListener.setup(x => x.handleEvent(TypeMoq.It.isAny())).callback((c) => {
             called = true;
             c.request.body.should.equal('TestData');
         });
@@ -81,6 +81,7 @@ let EmitsProxyReqEvent = class EmitsProxyReqEvent extends HttpProxyMiddlewareSer
         this.req.method = 'get';
         this.req.headers = { host: 'host' };
         this.underTest.addRequestListener(this.proxyRequestListener.object);
+        var num = null;
         this.underTest.listen(1234);
         this.proxyEventEmitter.emit('proxyReq', this.proxyReq, this.req);
     }
@@ -236,6 +237,7 @@ let EmitsProxyResEvent = class EmitsProxyResEvent extends HttpProxyMiddlewareSer
         super.before();
         this.proxyResponseListener = TypeMoq.Mock.ofType();
         this.req = new events_1.EventEmitter();
+        this.req.context = new proxy_context_1.ProxyContext(this.log);
         this.res = new events_1.EventEmitter();
         this.data = 'TestData';
         this.headerText = 'Header1';
@@ -245,7 +247,6 @@ let EmitsProxyResEvent = class EmitsProxyResEvent extends HttpProxyMiddlewareSer
         this.proxyRes.headers.push(this.headerText);
         this.proxyRes.statusCode = this.statusCodeText;
         this.underTest.addResponseListener(this.proxyResponseListener.object);
-        this.req.context = new mock_proxy_context_1.MockProxyContext(this.log);
         this.underTest.listen(1234);
         this.proxyEventEmitter.emit('proxyRes', this.proxyRes, this.req, this.res);
     }
@@ -272,7 +273,7 @@ let ProxyResEmitsDataEvent = class ProxyResEmitsDataEvent extends EmitsProxyResE
         this.req.context.response.body.should.equal(this.data);
     }
     handleEventIsNotCalled() {
-        this.proxyResponseListener.verify(x => x.handleEvent(TypeMoq.It.isAny(), TypeMoq.It.isAny()), TypeMoq.Times.never());
+        this.proxyResponseListener.verify(x => x.handleEvent(TypeMoq.It.isAny()), TypeMoq.Times.never());
     }
 };
 __decorate([
@@ -299,7 +300,7 @@ let ProxyResEmitsEndEvent = class ProxyResEmitsEndEvent extends EmitsProxyResEve
     handleEventIsCalled() {
         this.proxyRes.emit('data', this.data);
         this.proxyRes.emit('end');
-        this.proxyResponseListener.verify(x => x.handleEvent(TypeMoq.It.isAny(), TypeMoq.It.isAny()), TypeMoq.Times.once());
+        this.proxyResponseListener.verify(x => x.handleEvent(TypeMoq.It.isAny()), TypeMoq.Times.once());
     }
     proxyContextContainsHeaders() {
         this.proxyRes.emit('end');

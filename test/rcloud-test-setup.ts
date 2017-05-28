@@ -19,7 +19,7 @@ export class RCloudTestSetup extends TestSetup {
 }
 
 class TestResponseSelectAndReplaceListener implements ProxyListener {
-  handleEvent(Logger: Log, context : ProxyContext) {
+  handleEvent(context : ProxyContext) {
     log.debug('TestResponseSelectAndReplaceListener.handleEvent');
     let item = new HtmlModification('#ctl00_Content_EntityDataSource1','<h2>Chad\'s text</h2><span id="ctl00_Content_EntityDataSource1"></span>', HtmlChangeType.Replace);
     context.htmlModifications.push(item);

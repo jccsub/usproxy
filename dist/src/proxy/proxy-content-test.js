@@ -9,24 +9,24 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const mock_proxy_context_1 = require("./mocks/mock-proxy-context");
 const winston_logger_1 = require("../winston-logger");
 const mocha_typescript_1 = require("mocha-typescript");
+const proxy_context_1 = require("./proxy-context");
 const chai_1 = require("chai");
 let ProxyContextIsCreated = class ProxyContextIsCreated {
     before() {
         chai_1.should();
         this.log = new winston_logger_1.WinstonLog();
-        this.proxyContext = new mock_proxy_context_1.MockProxyContext(this.log);
+        this.proxyContext = new proxy_context_1.ProxyContext(this.log);
     }
     responsePropertyShouldBeInitialized() {
-        this.proxyContext.response.should.not.be.null;
+        var x = this.proxyContext.response.should.not.be.null;
     }
     requestPropertyShouldBeInitialized() {
-        this.proxyContext.request.should.not.be.null;
+        var x = this.proxyContext.request.should.not.be.null;
     }
     dataMapShouldBeInitialized() {
-        this.proxyContext.request.should.not.be.null;
+        var x = this.proxyContext.request.should.not.be.null;
     }
 };
 __decorate([
