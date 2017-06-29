@@ -5,13 +5,21 @@ var guardTypes = new Map();
 /* istanbul ignore next */
 function notNull(target, key, index) {
     var metadataKey = `notNull_${key}_parameters`;
-    target[metadataKey] = [index];
+    // tslint:disable-next-line:triple-equals
+    if (target[metadataKey] == null) {
+        target[metadataKey] = [];
+    }
+    target[metadataKey].push(index);
 }
 exports.notNull = notNull;
 /* istanbul ignore next */
 function isJson(target, key, index) {
     var metadataKey = `isJson_${key}_parameters`;
-    target[metadataKey] = [index];
+    // tslint:disable-next-line:triple-equals
+    if (target[metadataKey] == null) {
+        target[metadataKey] = [];
+    }
+    target[metadataKey].push(index);
 }
 exports.isJson = isJson;
 /* istanbul ignore next */
@@ -25,7 +33,6 @@ guardTypes.set('notNull', (target, key, index, value) => {
 });
 /* istanbul ignore next */
 guardTypes.set('isJson', (target, key, index, value) => {
-    //console.log(`Validating : isJson, target=${target.constructor.name}, key=${key}, value = ${JSON.stringify(value) || value.toString()}`);
     // tslint:disable-next-line:triple-equals
     if (value === undefined) {
         throw new Error(`${target.constructor.name}.${key}, JSON value at argument ${index} cannot be undefined`);

@@ -15,6 +15,7 @@ import { ProxyContextPersistor } from "./proxy-context-persistor";
 
 var should = chai.should();
 
+@suite
 class HttpProxyMiddlewareServerTest {
   protected log : Log;
   protected webServer : TypeMoq.IMock<WebServer>;
@@ -40,6 +41,17 @@ class HttpProxyMiddlewareServerTest {
       this.replacerFactory.object, 
       this.log);        
   }
+
+  @test
+  existingContextIsUsed() {
+    let proxyReq = new EventEmitter();
+    let req = new EventEmitter();
+    (req as any).context = new ProxyContext(this.log);
+    let called : boolean = false;
+    this.underTest.listen(1234);
+    this.proxyEventEmitter.emit('proxyReq', proxyReq, req);    
+  }
+  
 }
 
 
@@ -77,6 +89,8 @@ class EncountersError extends HttpProxyMiddlewareServerTest {
     this.proxyEventEmitter.emit('error', new Error('Error Message Goes Here'), req);    
     var x = called.should.be.true;
   }  
+
+  
 }
 
 @suite('HttpProxyMiddlewareServer emits proxyReq event')
@@ -110,6 +124,7 @@ class EmitsProxyReqEvent extends HttpProxyMiddlewareServerTest {
   proxyContextContainsEmptyBody() {
     var x = ((this.req as any).context as ProxyContext).request.body.should.be.empty;
   }
+
 }
 
 @suite("HttpProxyMiddlewareServer's proxyReq emits a data event")
@@ -119,19 +134,22 @@ class ProxyReqEmitsDataEvent extends EmitsProxyReqEvent {
   before() {
     super.before();
     this.data = 'TestData';
-    this.req.emit('data',this.data);
   }
 
   @test
   proxyContextContainsInitialData() {
+    this.req.emit('data',this.data);
     ((this.req as any).context as ProxyContext).request.body.should.equal(this.data);
   }
 
   @test
   proxyContextContainsAppendedData() {
     this.req.emit('data',this.data);
+    this.req.emit('data',this.data);
     ((this.req as any).context as ProxyContext).request.body.should.equal(`${this.data}${this.data}`);    
   }
+
+  
 }
 
 
@@ -236,7 +254,18 @@ class EmitsProxyResEvent extends HttpProxyMiddlewareServerTest {
   noErrorOccurrs() {
   }
 
-
+@test
+  guardsAgainstNullContext() {
+    let exceptionCaught = false;
+    (this.req as any).context = null;
+    try {
+      this.proxyEventEmitter.emit('proxyRes', this.proxyRes, this.req, this.res);
+    }
+    catch(e) {
+      exceptionCaught = true;
+    }
+    exceptionCaught.should.equal(true);
+  }
 }
 
 @suite("HttpProxyMiddleware's proxyRes emits data event")
@@ -259,6 +288,7 @@ class ProxyResEmitsDataEvent extends EmitsProxyResEvent {
     this.proxyResponseListener.verify(x=>x.handleEvent(TypeMoq.It.isAny()), TypeMoq.Times.never());
   }
 
+  
 }
 
 @suite("HttpProxyMiddleware's proxyRes emits end event")
@@ -298,4 +328,42 @@ class ProxyResEmitsEndEvent extends EmitsProxyResEvent {
     ((this.req as any).context as ProxyContext).response.body.should.equal(`${this.data}${this.data}`);
   }
  
+}
+
+
+@suite
+class HttpProxyMiddlewareEmitsProxyPathRewriteEvent extends HttpProxyMiddlewareServerTest{
+
+  private pathRewriteListener : TypeMoq.IMock<ProxyListener>;
+
+  before() {
+    super.before();
+    this.pathRewriteListener = TypeMoq.Mock.ofType<ProxyListener>();
+    this.underTest.addPathRewriteListener(this.pathRewriteListener.object);
+    this.underTest.listen(123);
+    this.proxyEventEmitter.emit('pathRewrite',{});
+  }
+
+  @test
+  pathRewriteListenersAreCalled() {
+    this.pathRewriteListener.verify(x=>x.handleEvent(TypeMoq.It.isAny()), TypeMoq.Times.once());
+  }
+}
+
+
+@suite
+class HttpProxyMiddlewareSelectsAndReplaces extends EmitsProxyResEvent {
+  private selectAndReplaceListener : TypeMoq.IMock<ProxyListener>;
+  before() {
+    super.before()
+    this.selectAndReplaceListener = TypeMoq.Mock.ofType<ProxyListener>();
+    this.underTest.addSelectAndReplaceListener(this.selectAndReplaceListener.object);
+    this.proxyEventEmitter.emit('proxyRes', this.proxyRes, this.req, this.res);    
+  }
+
+
+  @test
+  selectAndReplaceListenersAreCalled() {
+    this.selectAndReplaceListener.verify(x=>x.handleEvent(TypeMoq.It.isAny()),TypeMoq.Times.once());
+  }
 }

@@ -1,4 +1,4 @@
-import { HtmlModification } from './response-select-and-replace';
+import { SelectAndReplaceItem } from './response-select-and-replace';
 
 import {ProxyListener} from './proxy-listener';
 import {ProxyContext} from './proxy-context';
@@ -10,8 +10,6 @@ var httpProxy = require('http-proxy');
 export class ProxyListenerCollection {
 
   public readonly errorProxyListeners : Array<ProxyListener> = [];
-  public readonly parseProxyListeners : Array<ProxyListener> = [];
-  public readonly redirectProxyListeners : Array<ProxyListener> = [];
   public readonly requestProxyListeners : Array<ProxyListener> = [];
   public readonly responseProxyListeners : Array<ProxyListener> = [];
   public readonly selectAndReplaceListeners : Array<ProxyListener> = [];
@@ -24,14 +22,6 @@ export class ProxyListenerCollection {
 
   public addErrorListener(listener: ProxyListener) {
     this.errorProxyListeners.push(listener);
-  }
-
-  public addParseListener(listener: ProxyListener) {
-    this.parseProxyListeners.push(listener);
-  }
-
-  public addRedirectListener(listener : ProxyListener) {
-    this.redirectProxyListeners.push(listener);
   }
 
   public addRequestListener(listener: ProxyListener) {

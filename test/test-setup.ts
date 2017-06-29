@@ -6,7 +6,10 @@ import { HttpWebserver } from '../src/server/http-web-server';
 import { ConnectApplication } from '../src/server/connect-application';
 import { HttpProxyMiddlewareServer } from '../src/proxy/http-proxymw-server';
 import { ProxyMWEventEmitter } from '../src/proxy/http-proxy-mw-event-emitter';
-import { HarmonResponseSelectAndReplaceFactory } from '../src/proxy/harmon-response-select-and-replace';
+import {
+  HtmlResponseSelectAndReplace,
+  HtmlResponseSelectAndReplaceFactory
+} from '../src/proxy/html-response-select-and-replace';
 import { WinstonLog } from '../src/winston-logger';
 import { Log } from '../src/logger';
 import { read, readdir, readdirSync } from 'fs';
@@ -31,7 +34,6 @@ class ContextLogger implements ProxyListener {
 export class TestSetup {
 
   protected readonly errorListeners : Array<ProxyListener>;
-  protected readonly parseListeners : Array<ProxyListener>;
   protected readonly redirectListeners : Array<ProxyListener>;
   protected readonly requestListeners : Array<ProxyListener>;
   protected readonly responseListeners : Array<ProxyListener>;
@@ -42,7 +44,6 @@ export class TestSetup {
 
   constructor(target : string, port : number) {
     this.errorListeners = new Array<ProxyListener>();
-    this.parseListeners = new Array<ProxyListener>();
     this.redirectListeners = new Array<ProxyListener>();
     this.requestListeners = new Array<ProxyListener>();
     this.responseListeners = new Array<ProxyListener>();
@@ -54,13 +55,11 @@ export class TestSetup {
 
   public startTest() {
     let proxyEventEmitter = new ProxyMWEventEmitter(this.target,this.log);
-    let selectAndReplaceFactory = new HarmonResponseSelectAndReplaceFactory();
+    let selectAndReplaceFactory = new HtmlResponseSelectAndReplaceFactory;
     let proxyServer = new HttpProxyMiddlewareServer(proxyEventEmitter, new HttpWebserver(), new ConnectApplication(), selectAndReplaceFactory, this.log );
     this.requestListeners.push(new DataMapper(new RequestParser(this.log),this.log));
     this.responseListeners.push(new ContextLogger(this.log));
     this.errorListeners.forEach((listener) => {proxyServer.addErrorListener(listener)});
-    this.parseListeners.forEach((listener) => {proxyServer.addParseListener(listener)});
-    this.redirectListeners.forEach((listener) => {proxyServer.addRedirectListener(listener)});
     this.requestListeners.forEach((listener) => {proxyServer.addRequestListener(listener)});
     this.responseListeners.forEach((listener) => {proxyServer.addResponseListener(listener)});
     this.responseSelectAndReplaceListeners.forEach((listener) => {proxyServer.addSelectAndReplaceListener(listener)});

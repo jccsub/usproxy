@@ -1,6 +1,6 @@
 import { DataMap } from '../mapper/data-map';
 import { Log } from '../logger';
-import { HtmlModification } from './response-select-and-replace';
+import { SelectAndReplaceItem } from './response-select-and-replace';
 import * as http from 'http';
 import {ProxyRequest} from './proxy-request';
 import {ProxyResponse} from './proxy-response';
@@ -12,7 +12,7 @@ export class ProxyContext  {
 
   public request : ProxyRequest = new ProxyRequest();
 
-  public htmlModifications : Array<HtmlModification> = new Array<HtmlModification>();
+  public htmlModifications : Array<SelectAndReplaceItem> = new Array<SelectAndReplaceItem>();
 
   public rewritePath : string = '';
 

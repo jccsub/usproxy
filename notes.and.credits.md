@@ -16,9 +16,11 @@
   - [Dependencies](#dependencies)
     - [Using Winston logger](#using-winston-logger)
     - [Using gulp as build tool](#using-gulp-as-build-tool)
+    - [Using mssql for SQL Server Access](#using-mssql-for-sql-server-access)
     - [Using Express](#using-express)
     - [Using Typescript](#using-typescript)
     - [Using Mocha for test support](#using-mocha-for-test-support)
+    - [Using mocha-typescript to write tests in typescript](#using-mocha-typescript-to-write-tests-in-typescript)
     - [Using TypeMoq for unit test mocks](#using-typemoq-for-unit-test-mocks)
     - [Code Coverage with Istanbul](#code-coverage-with-istanbul)
     - [Required Node Version](#required-node-version)
@@ -104,7 +106,40 @@ I chose Winston based on the community support and ease of use. Had considered, 
 
 There seems to be a move away from grunt and gulp and a move towards using npm scripts for several reasons. I had planned to do the same, but will hold off, as there are some good arguments against such a change and I'm more familiar with the gulp way of things. Not adverse to going back to change later though.
 
+### Using mssql for SQL Server Access
 
+* Here's a little test I did to see it work:
+
+```javascript
+  async trythis() {
+    let pool = await sql.connect(this.config);
+    let result1 = await pool.request().query('select * from test');
+    return result1;
+  }
+
+  @test
+  Test() {
+    this.log.debug('about to start');
+    this.trythis().then((result) => console.dir(result));
+  }
+```
+
+and here's the output:
+
+```javascript
+{ recordsets: [ [ [Object], [Object] ] ],
+  recordset:
+   [ { id: 1,
+       name: 'name1     ',
+       value: 'value1
+                                                                      ' },
+     { id: 2,
+       name: 'name2     ',
+       value: 'value2
+                                                                      ' } ],
+  output: {},
+  rowsAffected: [ 2 ] }
+```
 
 ### Using Express
 * Instead of Koa(2)
@@ -137,6 +172,26 @@ The path pattern will not work in windows. The above in windows should be someth
 
 * Look [here](http://brianflove.com/2016/11/11/typescript-2-express-mongoose-mocha-chai/) for an example of using Mocha with Typescript (Search for text "Updated 2016-11-28")
 
+### Using mocha-typescript to write tests in typescript
+
+The only headache with this module so far has been with async tests. Fortunately, the module takes into consideration and provides a few ways of dealing with it. See the mocha-typescript npm page for more info on async. Here's an example:
+
+```javascript
+@test
+  async executingASelectThatReturnsMoreThanOneRowIsSuccessful() {
+    await this.dataConnection.execute('select * from master..sysdatabases').then((result) => {
+      return new Promise((resolve,reject) => {
+        try {
+          expect(result.recordset.length).to.be.greaterThan(1);
+        }
+        catch(err) {
+          reject(err);
+        }
+        resolve();
+      });
+    });
+  }
+```
 
 ### Using TypeMoq for unit test mocks
 

@@ -18,7 +18,7 @@ const events_1 = require("events");
 const mocha_typescript_1 = require("mocha-typescript");
 const TypeMoq = require("typemoq");
 var should = chai.should();
-class HttpProxyMiddlewareServerTest {
+let HttpProxyMiddlewareServerTest = class HttpProxyMiddlewareServerTest {
     before() {
         this.log = new winston_logger_1.WinstonLog();
         this.app = TypeMoq.Mock.ofType();
@@ -29,7 +29,24 @@ class HttpProxyMiddlewareServerTest {
         this.proxyEventEmitter = new mock_proxyevent_emitter_1.MockProxyEventEmitter();
         this.underTest = new http_proxymw_server_1.HttpProxyMiddlewareServer(this.proxyEventEmitter, this.webServer.object, this.app.object, this.replacerFactory.object, this.log);
     }
-}
+    existingContextIsUsed() {
+        let proxyReq = new events_1.EventEmitter();
+        let req = new events_1.EventEmitter();
+        req.context = new proxy_context_1.ProxyContext(this.log);
+        let called = false;
+        this.underTest.listen(1234);
+        this.proxyEventEmitter.emit('proxyReq', proxyReq, req);
+    }
+};
+__decorate([
+    mocha_typescript_1.test,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], HttpProxyMiddlewareServerTest.prototype, "existingContextIsUsed", null);
+HttpProxyMiddlewareServerTest = __decorate([
+    mocha_typescript_1.suite
+], HttpProxyMiddlewareServerTest);
 let EncountersError = class EncountersError extends HttpProxyMiddlewareServerTest {
     before() {
         super.before();
@@ -111,12 +128,13 @@ let ProxyReqEmitsDataEvent = class ProxyReqEmitsDataEvent extends EmitsProxyReqE
     before() {
         super.before();
         this.data = 'TestData';
-        this.req.emit('data', this.data);
     }
     proxyContextContainsInitialData() {
+        this.req.emit('data', this.data);
         this.req.context.request.body.should.equal(this.data);
     }
     proxyContextContainsAppendedData() {
+        this.req.emit('data', this.data);
         this.req.emit('data', this.data);
         this.req.context.request.body.should.equal(`${this.data}${this.data}`);
     }
@@ -252,6 +270,17 @@ let EmitsProxyResEvent = class EmitsProxyResEvent extends HttpProxyMiddlewareSer
     }
     noErrorOccurrs() {
     }
+    guardsAgainstNullContext() {
+        let exceptionCaught = false;
+        this.req.context = null;
+        try {
+            this.proxyEventEmitter.emit('proxyRes', this.proxyRes, this.req, this.res);
+        }
+        catch (e) {
+            exceptionCaught = true;
+        }
+        exceptionCaught.should.equal(true);
+    }
 };
 __decorate([
     mocha_typescript_1.test,
@@ -259,6 +288,12 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], EmitsProxyResEvent.prototype, "noErrorOccurrs", null);
+__decorate([
+    mocha_typescript_1.test,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], EmitsProxyResEvent.prototype, "guardsAgainstNullContext", null);
 EmitsProxyResEvent = __decorate([
     mocha_typescript_1.suite('HttpProxyMiddlewareServer emits proxyRes event')
 ], EmitsProxyResEvent);
@@ -345,4 +380,45 @@ __decorate([
 ProxyResEmitsEndEvent = __decorate([
     mocha_typescript_1.suite("HttpProxyMiddleware's proxyRes emits end event")
 ], ProxyResEmitsEndEvent);
+let HttpProxyMiddlewareEmitsProxyPathRewriteEvent = class HttpProxyMiddlewareEmitsProxyPathRewriteEvent extends HttpProxyMiddlewareServerTest {
+    before() {
+        super.before();
+        this.pathRewriteListener = TypeMoq.Mock.ofType();
+        this.underTest.addPathRewriteListener(this.pathRewriteListener.object);
+        this.underTest.listen(123);
+        this.proxyEventEmitter.emit('pathRewrite', {});
+    }
+    pathRewriteListenersAreCalled() {
+        this.pathRewriteListener.verify(x => x.handleEvent(TypeMoq.It.isAny()), TypeMoq.Times.once());
+    }
+};
+__decorate([
+    mocha_typescript_1.test,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], HttpProxyMiddlewareEmitsProxyPathRewriteEvent.prototype, "pathRewriteListenersAreCalled", null);
+HttpProxyMiddlewareEmitsProxyPathRewriteEvent = __decorate([
+    mocha_typescript_1.suite
+], HttpProxyMiddlewareEmitsProxyPathRewriteEvent);
+let HttpProxyMiddlewareSelectsAndReplaces = class HttpProxyMiddlewareSelectsAndReplaces extends EmitsProxyResEvent {
+    before() {
+        super.before();
+        this.selectAndReplaceListener = TypeMoq.Mock.ofType();
+        this.underTest.addSelectAndReplaceListener(this.selectAndReplaceListener.object);
+        this.proxyEventEmitter.emit('proxyRes', this.proxyRes, this.req, this.res);
+    }
+    selectAndReplaceListenersAreCalled() {
+        this.selectAndReplaceListener.verify(x => x.handleEvent(TypeMoq.It.isAny()), TypeMoq.Times.once());
+    }
+};
+__decorate([
+    mocha_typescript_1.test,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], HttpProxyMiddlewareSelectsAndReplaces.prototype, "selectAndReplaceListenersAreCalled", null);
+HttpProxyMiddlewareSelectsAndReplaces = __decorate([
+    mocha_typescript_1.suite
+], HttpProxyMiddlewareSelectsAndReplaces);
 //# sourceMappingURL=http-proxymw-server-test.js.map

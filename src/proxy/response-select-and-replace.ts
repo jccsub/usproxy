@@ -1,17 +1,17 @@
 import { Log } from '../logger';
 
-export enum HtmlChangeType {
+export enum SelectAndReplaceType {
   Replace,
   Append
 }
 
-export class HtmlModification {
+export class SelectAndReplaceItem {
   public readonly newText: string;
   public readonly select: string;
 
-  public readonly changeType : HtmlChangeType;
+  public readonly changeType : SelectAndReplaceType;
 
-  constructor(select: string, replace: string, changeType : HtmlChangeType) {
+  constructor(select: string, replace: string, changeType : SelectAndReplaceType) {
     this.select = select;
     this.newText = replace;
     this.changeType = changeType;
@@ -23,7 +23,7 @@ export interface ResponseSelectAndReplace {
   
   execute(req: any, res: any);
 
-  addSelectAndReplaceItems(selectAndReplaceItems : Array<HtmlModification>);
+  addSelectAndReplaceItems(selectAndReplaceItems : Array<SelectAndReplaceItem>);
 
 }
 

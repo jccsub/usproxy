@@ -25,9 +25,8 @@ class HttpProxyMiddlewareServer {
         this.selectAndReplaceFactory = selectAndReplaceFactory;
     }
     initializeContextIfNotInitialized(req) {
-        let context = req.context;
         // tslint:disable-next-line:triple-equals
-        if (context == null) {
+        if (req.context == null) {
             req.context = new proxy_context_1.ProxyContext(this.log);
         }
         return req.context;
@@ -57,9 +56,7 @@ class HttpProxyMiddlewareServer {
         if (context == null) {
             throw new Error('HttpProxyMiddlewareServer.executeProxyResHandlers - req.context cannot be null');
         }
-        this.listeners.selectAndReplaceListeners.forEach((listener) => {
-            listener.handleEvent(context);
-        });
+        this.executeSelectAndReplaceHandlers(req, res);
         let selectAndReplacer = this.selectAndReplaceFactory.create(this.log);
         selectAndReplacer.addSelectAndReplaceItems(context.htmlModifications);
         selectAndReplacer.execute(req, res);
@@ -88,12 +85,9 @@ class HttpProxyMiddlewareServer {
     }
     executeSelectAndReplaceHandlers(req, res) {
         let context = req.context;
-        // tslint:disable-next-line:triple-equals
-        if (context != null) {
-            this.listeners.selectAndReplaceListeners.forEach((listener) => {
-                listener.handleEvent(context);
-            });
-        }
+        this.listeners.selectAndReplaceListeners.forEach((listener) => {
+            listener.handleEvent(context);
+        });
     }
     executePathRewriteHandlers(req) {
         let context = this.initializeContextIfNotInitialized(req);
@@ -105,12 +99,6 @@ class HttpProxyMiddlewareServer {
     addErrorListener(proxyListener) {
         this.listeners.addErrorListener(proxyListener);
     }
-    addParseListener(listener) {
-        this.listeners.addParseListener(listener);
-    }
-    addRedirectListener(listener) {
-        this.listeners.addRedirectListener(listener);
-    }
     addRequestListener(listener) {
         this.listeners.addRequestListener(listener);
     }
@@ -119,6 +107,9 @@ class HttpProxyMiddlewareServer {
     }
     addSelectAndReplaceListener(listener) {
         this.listeners.addSelectAndReplaceListener(listener);
+    }
+    addPathRewriteListener(listener) {
+        this.listeners.addPathRewriteListener(listener);
     }
     listen(port) {
         let x = 0;

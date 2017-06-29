@@ -56,7 +56,6 @@ let DataMapTests = class DataMapTests {
     toStringReturnsStringRepresentationOfContent() {
         this.dataMap.addContent('{"prop1" : "val1", "prop2" : "val2"}');
         var x = this.dataMap.toString().should.not.be.empty;
-        console.log(this.dataMap.toString());
     }
 };
 __decorate([

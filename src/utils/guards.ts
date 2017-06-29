@@ -7,18 +7,25 @@ var guardTypes : Map<string,ParameterValidation> = new Map<string,ParameterValid
 /* istanbul ignore next */ 
 export function notNull(target: any, key : string, index : number) {
   var metadataKey = `notNull_${key}_parameters`;
-  target[metadataKey] = [index];
+  // tslint:disable-next-line:triple-equals
+  if (target[metadataKey] == null) {
+    target[metadataKey] = [];    
+  }
+  target[metadataKey].push(index);
 }
 
 /* istanbul ignore next */ 
 export function isJson(target: any, key : string, index : number) {
   var metadataKey = `isJson_${key}_parameters`;
-  target[metadataKey] = [index];
+  // tslint:disable-next-line:triple-equals
+  if (target[metadataKey] == null) {
+      target[metadataKey] = [];
+  }
+  target[metadataKey].push(index);
 }
 
 /* istanbul ignore next */ 
 guardTypes.set('notNull' , (target : Object,key : string,index : number,value : any) => {
-
     if (value === undefined) {
         throw new Error(`${target.constructor.name}.${key}, value at argument ${index} cannot be undefined`);
     }
@@ -29,7 +36,6 @@ guardTypes.set('notNull' , (target : Object,key : string,index : number,value : 
 
 /* istanbul ignore next */ 
 guardTypes.set('isJson', (target : Object, key : string, index : number, value : any) => {
-    //console.log(`Validating : isJson, target=${target.constructor.name}, key=${key}, value = ${JSON.stringify(value) || value.toString()}`);
     // tslint:disable-next-line:triple-equals
     if (value === undefined) {
         throw new Error(`${target.constructor.name}.${key}, JSON value at argument ${index} cannot be undefined`);
@@ -52,20 +58,25 @@ export function guarded(target : Object, key : string, descriptor: TypedProperty
 }
 
 
+
 /* istanbul ignore next */ 
 function checkParameterDecorators(guardType: string, validation : ParameterValidation, target : Object, key : string, descriptor : TypedPropertyDescriptor<any>) {
     const originalMethod = descriptor.value; // save a reference to the original method
     var metadataKey = `${guardType}_${key}_parameters`;
+
     var indices = target[metadataKey];
+    
+
     // tslint:disable-next-line:triple-equals
     if (indices == null) {
         return;
     }
+
     var result;
     // NOTE: Do not use arrow syntax here. Use a function expression in 
     // order to use the correct value of `this` in this method (see notes below)
     descriptor.value = function(...args: any[]) {
-        if (Array.isArray(indices)) { 
+        if (Array.isArray(indices)) {
             for (var i = 0; i < args.length; i++) {                 
                 if (indices.indexOf(i) !== -1) { 
                     validation(target, key, i, args[i]);

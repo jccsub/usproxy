@@ -1,56 +1,46 @@
+import { guarded, notNull } from '../utils/guards';
 import { Log } from '../logger';
 import {
-  HtmlChangeType,
-  HtmlModification,
+  SelectAndReplaceType,
+  SelectAndReplaceItem,
   ResponseSelectAndReplace,
   ResponseSelectAndReplaceFactory
 } from './response-select-and-replace';
 
-export class HarmonResponseSelectAndReplaceFactory implements ResponseSelectAndReplaceFactory {
-  public create(log: Log) : ResponseSelectAndReplace {
-    return new HarmonResponseSelectAndReplace(log);
-  }
-}
 
-export class HarmonResponseSelectAndReplace implements ResponseSelectAndReplace {
+export class HtmlResponseSelectAndReplace implements ResponseSelectAndReplace {
 
   private log : Log;
 
-  private selectAndReplaceItems : Array<HtmlModification>;
+  private selectAndReplaceItems : Array<SelectAndReplaceItem>;
 
-  constructor(log : Log) {
+  private replacerFactory : (reqSelects : any, resSelects : any) => (req, res, func) => void;
+
+  constructor(replacerFactory : (reqSelects : any, resSelects: any)=>(req, res, func) => void, log : Log) {
     this.log = log;
-    this.selectAndReplaceItems = new Array<HtmlModification>();
+    this.selectAndReplaceItems = new Array<SelectAndReplaceItem>();
+    this.replacerFactory = replacerFactory;
   }
 
-  public execute(req: any, res: any) {
-    this.log.debug('execute()');
+  @guarded
+  public execute(@notNull req: any, @notNull res: any) {
     var selects = this.convertSelectAndReplaceToQueryFunctionList(this.selectAndReplaceItems);            
-    this.log.debug(`execute() selects list count = ${selects.length}`);
-    var replacer = require('harmon')([],selects);
+    var replacer = this.replacerFactory([],selects);
     replacer(req, res, () => {});
   }
 
-  public addSelectAndReplaceItems(selectAndReplaceItems: Array<HtmlModification>) {
-    this.log.debug(`addSelectAndReplaceItems called - ${selectAndReplaceItems.length} items`);
-    // tslint:disable-next-line:triple-equals
-    if (selectAndReplaceItems == null) {
-      throw new Error('selectAndReplaceItems must be assigned');
-    }    
+  public addSelectAndReplaceItems(selectAndReplaceItems: Array<SelectAndReplaceItem>) {
     this.selectAndReplaceItems = this.selectAndReplaceItems.concat(selectAndReplaceItems);
   }
 
-
-  private convertSelectAndReplaceToQueryFunctionList(selectAndReplaceItems : Array<HtmlModification>) : any {
-    this.log.debug(`convertSelectAndReplaceToQueryFunctionList called with ${selectAndReplaceItems.length} items`);
+/* istanbul ignore next */
+  private convertSelectAndReplaceToQueryFunctionList(selectAndReplaceItems : Array<SelectAndReplaceItem>) : any {
     let selects : any = [];
     selectAndReplaceItems.forEach((item) => {
-
-
       let singleSelect : any = {};
       (singleSelect as any).query = item.select;
       (singleSelect as any).func = (node) => {
-        if (item.changeType === HtmlChangeType.Append) {
+        if (item.changeType === SelectAndReplaceType.Append) {
           this.append(node, item.newText);
         }        
         else {
@@ -63,10 +53,13 @@ export class HarmonResponseSelectAndReplace implements ResponseSelectAndReplace 
   }
   
 
+/* istanbul ignore next */
   private replace(node : any, newText : string) {
     node.createWriteStream().end(newText);
   }
 
+
+/* istanbul ignore next */
   private append(node: any, newText : string) {
     var rs = node.createReadStream();
     var ws = node.createWriteStream({outer: false});
@@ -81,4 +74,11 @@ export class HarmonResponseSelectAndReplace implements ResponseSelectAndReplace 
 
   }
 
+}
+
+export class HtmlResponseSelectAndReplaceFactory implements ResponseSelectAndReplaceFactory {
+/* istanbul ignore next */
+  public create(log: Log): ResponseSelectAndReplace {
+    return new HtmlResponseSelectAndReplace(require('harmon'),log);
+  }
 }

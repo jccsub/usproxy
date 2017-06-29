@@ -4,8 +4,6 @@ var httpProxy = require('http-proxy');
 class ProxyListenerCollection {
     constructor(logger) {
         this.errorProxyListeners = [];
-        this.parseProxyListeners = [];
-        this.redirectProxyListeners = [];
         this.requestProxyListeners = [];
         this.responseProxyListeners = [];
         this.selectAndReplaceListeners = [];
@@ -14,12 +12,6 @@ class ProxyListenerCollection {
     }
     addErrorListener(listener) {
         this.errorProxyListeners.push(listener);
-    }
-    addParseListener(listener) {
-        this.parseProxyListeners.push(listener);
-    }
-    addRedirectListener(listener) {
-        this.redirectProxyListeners.push(listener);
     }
     addRequestListener(listener) {
         this.requestProxyListeners.push(listener);

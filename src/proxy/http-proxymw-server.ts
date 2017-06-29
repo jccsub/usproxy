@@ -40,9 +40,8 @@ export class HttpProxyMiddlewareServer implements ProxyServer {
   }
 
   private initializeContextIfNotInitialized(req : any) : ProxyContext {
-    let context = req.context;
     // tslint:disable-next-line:triple-equals
-    if (context == null) {
+    if (req.context == null) {
       req.context = new ProxyContext(this.log);
     }
     return req.context;
@@ -76,9 +75,7 @@ export class HttpProxyMiddlewareServer implements ProxyServer {
       throw new Error('HttpProxyMiddlewareServer.executeProxyResHandlers - req.context cannot be null');
     }
 
-    this.listeners.selectAndReplaceListeners.forEach((listener) => {
-      listener.handleEvent(context);
-    });
+    this.executeSelectAndReplaceHandlers(req, res);
 
     let selectAndReplacer = this.selectAndReplaceFactory.create(this.log);
     selectAndReplacer.addSelectAndReplaceItems(context.htmlModifications);
@@ -111,12 +108,9 @@ export class HttpProxyMiddlewareServer implements ProxyServer {
 
   private executeSelectAndReplaceHandlers(req, res) {
     let context = ((req as any).context as ProxyContext);
-    // tslint:disable-next-line:triple-equals
-    if (context != null) {
-      this.listeners.selectAndReplaceListeners.forEach((listener) => {
-        listener.handleEvent(context);
-      });
-    }
+    this.listeners.selectAndReplaceListeners.forEach((listener) => {
+      listener.handleEvent(context);
+    });
   }
 
   private executePathRewriteHandlers(req) {
@@ -129,14 +123,6 @@ export class HttpProxyMiddlewareServer implements ProxyServer {
 
   public addErrorListener(proxyListener: ProxyListener) {
     this.listeners.addErrorListener(proxyListener);
-  }
-
-  public addParseListener(listener: ProxyListener) {
-    this.listeners.addParseListener(listener);
-  }
-
-  public addRedirectListener(listener : ProxyListener) {
-    this.listeners.addRedirectListener(listener);
   }
 
   public addRequestListener(listener: ProxyListener) {
@@ -152,12 +138,16 @@ export class HttpProxyMiddlewareServer implements ProxyServer {
     this.listeners.addSelectAndReplaceListener(listener);
   }
   
+  public addPathRewriteListener(listener : ProxyListener) {
+    this.listeners.addPathRewriteListener(listener);
+  }
+
   @guarded
   listen(@notNull port: number) {
     let x = 0;
     this.proxyEventEmitter.on('error', (err, req, res) => {this.executeErrorHandlers(err,req,res)} );
     this.proxyEventEmitter.on('proxyRes', (proxyRes, req, res) => {this.executeProxyResHandlers(proxyRes, req, res)} );
-    this.proxyEventEmitter.on('proxyReq', (proxyReq, req, res) => {this.executeProxyReqHandlers(proxyReq, req, res)} );
+    this.proxyEventEmitter.on('proxyReq', (proxyReq, req, res) => { this.executeProxyReqHandlers(proxyReq, req, res)} );
     this.proxyEventEmitter.on('pathRewrite', (req) => { this.executePathRewriteHandlers(req);  (req as any).newPath = (req as any).context.rewritePath; } )
     this.app.use(this.proxyEventEmitter.getRequestListener());
     this.webServer.startServer(port, this.app.requestListener);
