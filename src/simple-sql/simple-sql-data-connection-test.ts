@@ -37,10 +37,12 @@ class SqlDataConnectionInfoTests extends SimpleSqlDataConnectionTests {
     this.dataConnection.getCatalog().should.equal('usproxy');
   }
 
+  @test
   getUserReturnsTheDatabaseUser() {
     this.dataConnection.getUser().should.equal('dev');
   }
 
+  @test
   getMachineReturnsTheDatabaseServer() {
     this.dataConnection.getMachine().should.equal('localhost');
   }
@@ -65,6 +67,7 @@ class SqlDataConnectionExecuteTests extends SimpleSqlDataConnectionTests {
           expect(result.recordset.length).to.be.greaterThan(1);
         }
         catch(err) {
+          /* istanbul ignore next */
           reject(err);
         }
         resolve();
@@ -74,7 +77,26 @@ class SqlDataConnectionExecuteTests extends SimpleSqlDataConnectionTests {
 
   @test
   async executingASelectThatReturnsZeroRowsIsSuccessful() {
+    /* istanbul ignore next */
     await this.dataConnection.execute('select * from master..sysdatabases where name = \'no_database\'').then((result) => {
+      return new Promise((resolve,reject) => {
+        try {
+          expect(result.recordset.length).to.equal(0);
+        }
+        /* istanbul ignore next */
+        catch(err) {
+          reject(err);
+        }
+        resolve();
+      })
+    });       
+  }
+
+  @test
+  async executingAnInvalidCommandResultsInAnException() {
+    let expectedException = false;
+    /* istanbul ignore next */
+    await this.dataConnection.execute('invalid select command').then((result) => {
       return new Promise((resolve,reject) => {
         try {
           expect(result.recordset.length).to.equal(0);
@@ -84,8 +106,14 @@ class SqlDataConnectionExecuteTests extends SimpleSqlDataConnectionTests {
         }
         resolve();
       })
+    }).catch(onrejected => {      
+      expectedException = true;
     });       
-  }
+    /* istanbul ignore next */
+    if (!expectedException) {
+      throw new Error('expected exception');
+    }
 
+  }
 
 }

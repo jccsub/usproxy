@@ -19,6 +19,7 @@
     - [Using mssql for SQL Server Access](#using-mssql-for-sql-server-access)
     - [Using Express](#using-express)
     - [Using Typescript](#using-typescript)
+    - [Using TypeORM](#using-typeorm)
     - [Using Mocha for test support](#using-mocha-for-test-support)
     - [Using mocha-typescript to write tests in typescript](#using-mocha-typescript-to-write-tests-in-typescript)
     - [Using TypeMoq for unit test mocks](#using-typemoq-for-unit-test-mocks)
@@ -148,6 +149,11 @@ and here's the output:
 ### Using Typescript
 The following was a quick intro into using typescript with node:
 * [Developing a restful api with node and typescript](http://mherman.org/blog/2016/11/05/developing-a-restful-api-with-node-and-typescript/#.WOOdm28rLmg)
+
+### Using TypeORM
+
+I started off with the plan of just mixing in my sql into my reader/writer classes. I really didn't want to use or implement an orm, but keeping the sql spread out in different node classes was not pleasant either and without realizing it, as I began to refactor my code I ended up implementing much of an orm that continued to grow so quickly that it was in danger of becoming the most significant component of the application. I abandoned the sql related classes that I had written for TypeORM. It looks like one of the more successful (and simple) node orms out there.
+
 
 ### Using Mocha for test support
 

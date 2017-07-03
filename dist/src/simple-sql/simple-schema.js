@@ -39,65 +39,6 @@ class SimpleColumn {
     isOptional() {
         return (this.attributes & SimpleColumnAttributes.optional) === SimpleColumnAttributes.optional;
     }
-    getDefinition() {
-        // tslint:disable-next-line:triple-equals
-        let def = `${this.columnName} `;
-        switch (this.dataType) {
-            case SimpleColumnDataType.int: {
-                def += 'int ';
-                break;
-            }
-            case SimpleColumnDataType.char: {
-                def += 'char(1) ';
-                break;
-            }
-            case SimpleColumnDataType.string1024: {
-                def += 'varchar(1024) ';
-                break;
-            }
-            case SimpleColumnDataType.string255: {
-                def += 'varchar(255) ';
-                break;
-            }
-            case SimpleColumnDataType.string4096: {
-                def += 'varchar(4096) ';
-                break;
-            }
-            case SimpleColumnDataType.stringMax: {
-                def += 'varchar(MAX) ';
-                break;
-            }
-            case SimpleColumnDataType.uniqueidentifier: {
-                def += 'uniqueidentifier ';
-                break;
-            }
-            default: {
-                throw new Error(`SimpleColumn.getDefinition() - Not a valid data type for ${def} : ${this.dataType}`);
-            }
-        }
-        if (this.isPrimaryKey()) {
-            def += 'primary key ';
-        }
-        if (this.isIdentity()) {
-            switch (this.dataType) {
-                case SimpleColumnDataType.int: {
-                    def += 'identity(1,1) ';
-                    break;
-                }
-                case SimpleColumnDataType.uniqueidentifier: {
-                    def += 'default newid() ';
-                    break;
-                }
-                default: {
-                    throw new Error(`SimpleColumn.getDefinition() - Identity must be either an int or uniqueidentifier: ${def}`);
-                }
-            }
-        }
-        if (!this.isOptional() && (!(this.isIdentity() && (this.dataType === SimpleColumnDataType.uniqueidentifier)))) {
-            def += 'not null ';
-        }
-        return def;
-    }
     validateAttributes(attributes) {
         if (((attributes & SimpleColumnAttributes.optional) === SimpleColumnAttributes.optional) &&
             ((attributes & SimpleColumnAttributes.primaryKey) === SimpleColumnAttributes.primaryKey)) {

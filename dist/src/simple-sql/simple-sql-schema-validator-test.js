@@ -11,14 +11,14 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const winston_logger_1 = require("../winston-logger");
 const simple_schema_1 = require("./simple-schema");
-const simple_schema_validator_1 = require("./simple-schema-validator");
+const simple_sql_data_validator_1 = require("./simple-sql-data-validator");
 const simple_test_schema_builder_1 = require("./simple-test-schema-builder");
 const mocha_typescript_1 = require("mocha-typescript");
 const misc_1 = require("../utils/misc");
-let SimpleSchemaValidatorTest = class SimpleSchemaValidatorTest {
+let SimpleSqlSchemaValidatorTest = class SimpleSqlSchemaValidatorTest {
     before() {
         this.log = new winston_logger_1.WinstonLog();
-        this.simpleSchemaValidator = new simple_schema_validator_1.SimpleSchemaValidator(simple_test_schema_builder_1.SimpleTestSchemaBuilder.buildSchema(), this.log);
+        this.simpleSchemaValidator = new simple_sql_data_validator_1.SimpleSqlDataValidator(simple_test_schema_builder_1.SimpleTestSchemaBuilder.buildSchema(), this.log);
         this.testData = simple_test_schema_builder_1.SimpleTestSchemaBuilder.generateData('col1', 'this is col1', 'Y', 'whole lot of text', 10);
     }
     goodSchemaValidatesSuccessfully() {
@@ -57,7 +57,7 @@ let SimpleSchemaValidatorTest = class SimpleSchemaValidatorTest {
         let col = new simple_schema_1.SimpleColumn('test', 500);
         schema.push(col);
         this.testData.test = 'not valid since dataType is not valid';
-        this.simpleSchemaValidator = new simple_schema_validator_1.SimpleSchemaValidator(schema, this.log);
+        this.simpleSchemaValidator = new simple_sql_data_validator_1.SimpleSqlDataValidator(schema, this.log);
         misc_1.expectException(() => this.simpleSchemaValidator.validate(this.testData));
     }
 };
@@ -66,56 +66,56 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
-], SimpleSchemaValidatorTest.prototype, "goodSchemaValidatesSuccessfully", null);
+], SimpleSqlSchemaValidatorTest.prototype, "goodSchemaValidatesSuccessfully", null);
 __decorate([
     mocha_typescript_1.test,
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
-], SimpleSchemaValidatorTest.prototype, "valueProvidedForIdentityColumnThrowsException", null);
+], SimpleSqlSchemaValidatorTest.prototype, "valueProvidedForIdentityColumnThrowsException", null);
 __decorate([
     mocha_typescript_1.test,
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
-], SimpleSchemaValidatorTest.prototype, "nonOptionalValueMustExist", null);
+], SimpleSqlSchemaValidatorTest.prototype, "nonOptionalValueMustExist", null);
 __decorate([
     mocha_typescript_1.test,
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
-], SimpleSchemaValidatorTest.prototype, "anIntColumnMustContainAnIntegerValue", null);
+], SimpleSqlSchemaValidatorTest.prototype, "anIntColumnMustContainAnIntegerValue", null);
 __decorate([
     mocha_typescript_1.test,
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
-], SimpleSchemaValidatorTest.prototype, "stringTypeCannotBeNullIfNotOptional", null);
+], SimpleSqlSchemaValidatorTest.prototype, "stringTypeCannotBeNullIfNotOptional", null);
 __decorate([
     mocha_typescript_1.test,
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
-], SimpleSchemaValidatorTest.prototype, "stringCannotExceedSpecifiedCharacters", null);
+], SimpleSqlSchemaValidatorTest.prototype, "stringCannotExceedSpecifiedCharacters", null);
 __decorate([
     mocha_typescript_1.test,
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
-], SimpleSchemaValidatorTest.prototype, "noProblemInAssigningNonStringToStringField", null);
+], SimpleSqlSchemaValidatorTest.prototype, "noProblemInAssigningNonStringToStringField", null);
 __decorate([
     mocha_typescript_1.test,
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
-], SimpleSchemaValidatorTest.prototype, "invalidUuidIsCaught", null);
+], SimpleSqlSchemaValidatorTest.prototype, "invalidUuidIsCaught", null);
 __decorate([
     mocha_typescript_1.test,
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
-], SimpleSchemaValidatorTest.prototype, "unexpectedDataTypeIsCaught", null);
-SimpleSchemaValidatorTest = __decorate([
+], SimpleSqlSchemaValidatorTest.prototype, "unexpectedDataTypeIsCaught", null);
+SimpleSqlSchemaValidatorTest = __decorate([
     mocha_typescript_1.suite
-], SimpleSchemaValidatorTest);
-//# sourceMappingURL=simple-schema-validator-test.js.map
+], SimpleSqlSchemaValidatorTest);
+//# sourceMappingURL=simple-sql-schema-validator-test.js.map

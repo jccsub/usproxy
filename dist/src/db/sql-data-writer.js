@@ -22,17 +22,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const guards_1 = require("../utils/guards");
 class SqlDataWriter {
-    constructor(connection, sqlGenerator, tableSchemaValidator) {
-        this.schemaValidator = tableSchemaValidator;
+    constructor(connection, sqlInsertGenerator, sqlTableGenerator, dataValidator) {
+        this.dataValidator = dataValidator;
         this.connection = connection;
-        this.sqlGenerator = sqlGenerator;
+        this.sqlInsertGenerator = sqlInsertGenerator;
+        this.sqlTableGenerator = sqlTableGenerator;
         this.createDatabaseIfItDoesNotExist();
         this.createTableIfItDoesNotExist();
     }
     write(dataToWrite) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.schemaValidator.validate(dataToWrite);
-            return yield this.execute(this.sqlGenerator.generateInsertStatement(dataToWrite)).then((result) => {
+            this.dataValidator.validate(dataToWrite);
+            return yield this.execute(this.sqlInsertGenerator.generateInsertStatement(dataToWrite)).then((result) => {
                 // tslint:disable-next-line:triple-equals
                 if (result == null) {
                     throw new Error('SqlDataWriter.write - Did not receive a result back');
@@ -42,11 +43,9 @@ class SqlDataWriter {
         });
     }
     createDatabaseIfItDoesNotExist() {
-        let sqlText = this.sqlGenerator.generateCreateDatabaseIfItDoesNotExist();
-        this.execute(sqlText);
     }
     createTableIfItDoesNotExist() {
-        let sqlText = this.sqlGenerator.generateCreateTableIfItDoesNotExist();
+        let sqlText = this.sqlTableGenerator.generateCreateTableIfItDoesNotExist();
         this.execute(sqlText);
     }
     execute(command) {

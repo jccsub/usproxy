@@ -14,7 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const simple_schema_1 = require("./simple-schema");
 const guards_1 = require("../utils/guards");
-class SimpleSchemaValidator {
+class SimpleSqlDataValidator {
     constructor(tableSchema, log) {
         this.tableSchema = tableSchema;
         this.log = log;
@@ -26,30 +26,39 @@ class SimpleSchemaValidator {
                 this.validateNoValueForIdentityColumn(column, data);
                 return;
             }
-            switch (column.dataType) {
-                case simple_schema_1.SimpleColumnDataType.int:
-                    this.validateIntValue(data[column.columnName]);
-                    break;
-                case simple_schema_1.SimpleColumnDataType.string1024:
-                    this.validateStringValue(data[column.columnName], 1024);
-                    break;
-                case simple_schema_1.SimpleColumnDataType.string255:
-                    this.validateStringValue(data[column.columnName], 255);
-                    break;
-                case simple_schema_1.SimpleColumnDataType.string4096:
-                    this.validateStringValue(data[column.columnName], 4096);
-                    break;
-                case simple_schema_1.SimpleColumnDataType.char:
-                    this.validateStringValue(data[column.columnName], 1);
-                    break;
-                case simple_schema_1.SimpleColumnDataType.stringMax:
-                    this.validateStringValue(data[column.columnName]);
-                    break;
-                case simple_schema_1.SimpleColumnDataType.uniqueidentifier:
-                    this.validateUuidValue(data[column.columnName]);
-                    break;
-                default:
-                    throw new Error(`SimpleSchemaValidator.validate - Unexpected column data type: ${column.dataType}`);
+            // tslint:disable-next-line:triple-equals
+            if (column.isOptional() && (data[column.columnName] == null)) {
+                return;
+            }
+            try {
+                switch (column.dataType) {
+                    case simple_schema_1.SimpleColumnDataType.int:
+                        this.validateIntValue(data[column.columnName]);
+                        break;
+                    case simple_schema_1.SimpleColumnDataType.string1024:
+                        this.validateStringValue(data[column.columnName], 1024);
+                        break;
+                    case simple_schema_1.SimpleColumnDataType.string255:
+                        this.validateStringValue(data[column.columnName], 255);
+                        break;
+                    case simple_schema_1.SimpleColumnDataType.string4096:
+                        this.validateStringValue(data[column.columnName], 4096);
+                        break;
+                    case simple_schema_1.SimpleColumnDataType.char:
+                        this.validateStringValue(data[column.columnName], 1);
+                        break;
+                    case simple_schema_1.SimpleColumnDataType.stringMax:
+                        this.validateStringValue(data[column.columnName]);
+                        break;
+                    case simple_schema_1.SimpleColumnDataType.uniqueidentifier:
+                        this.validateUuidValue(data[column.columnName]);
+                        break;
+                    default:
+                        throw new Error(`SimpleSchemaValidator.validate - Unexpected column data type: ${column.dataType}`);
+                }
+            }
+            catch (err) {
+                throw new Error(`validateData error on column ${column.columnName} : ${err.message} `);
             }
         });
         return data;
@@ -81,7 +90,7 @@ class SimpleSchemaValidator {
         }
     }
     validateColumnExistence(data, column) {
-        if (!column.isOptional() && !data.hasOwnProperty(column.columnName)) {
+        if (!column.isOptional() && !column.isIdentity() && !data.hasOwnProperty(column.columnName)) {
             throw new Error(`SimpleSchemaValidator.validateColumnExistence - required column does not exist in the data: ${column.columnName}`);
         }
     }
@@ -92,6 +101,6 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
-], SimpleSchemaValidator.prototype, "validate", null);
-exports.SimpleSchemaValidator = SimpleSchemaValidator;
-//# sourceMappingURL=simple-schema-validator.js.map
+], SimpleSqlDataValidator.prototype, "validate", null);
+exports.SimpleSqlDataValidator = SimpleSqlDataValidator;
+//# sourceMappingURL=simple-sql-data-validator.js.map

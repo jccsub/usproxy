@@ -56,6 +56,18 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], SqlDataConnectionInfoTests.prototype, "getCatalogReturnsTheDatabaseName", null);
+__decorate([
+    mocha_typescript_1.test,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], SqlDataConnectionInfoTests.prototype, "getUserReturnsTheDatabaseUser", null);
+__decorate([
+    mocha_typescript_1.test,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], SqlDataConnectionInfoTests.prototype, "getMachineReturnsTheDatabaseServer", null);
 SqlDataConnectionInfoTests = __decorate([
     mocha_typescript_1.suite
 ], SqlDataConnectionInfoTests);
@@ -73,6 +85,7 @@ let SqlDataConnectionExecuteTests = class SqlDataConnectionExecuteTests extends 
                         chai_1.expect(result.recordset.length).to.be.greaterThan(1);
                     }
                     catch (err) {
+                        /* istanbul ignore next */
                         reject(err);
                     }
                     resolve();
@@ -82,7 +95,26 @@ let SqlDataConnectionExecuteTests = class SqlDataConnectionExecuteTests extends 
     }
     executingASelectThatReturnsZeroRowsIsSuccessful() {
         return __awaiter(this, void 0, void 0, function* () {
+            /* istanbul ignore next */
             yield this.dataConnection.execute('select * from master..sysdatabases where name = \'no_database\'').then((result) => {
+                return new Promise((resolve, reject) => {
+                    try {
+                        chai_1.expect(result.recordset.length).to.equal(0);
+                    }
+                    /* istanbul ignore next */
+                    catch (err) {
+                        reject(err);
+                    }
+                    resolve();
+                });
+            });
+        });
+    }
+    executingAnInvalidCommandResultsInAnException() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let expectedException = false;
+            /* istanbul ignore next */
+            yield this.dataConnection.execute('invalid select command').then((result) => {
                 return new Promise((resolve, reject) => {
                     try {
                         chai_1.expect(result.recordset.length).to.equal(0);
@@ -92,7 +124,13 @@ let SqlDataConnectionExecuteTests = class SqlDataConnectionExecuteTests extends 
                     }
                     resolve();
                 });
+            }).catch(onrejected => {
+                expectedException = true;
             });
+            /* istanbul ignore next */
+            if (!expectedException) {
+                throw new Error('expected exception');
+            }
         });
     }
 };
@@ -108,6 +146,12 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], SqlDataConnectionExecuteTests.prototype, "executingASelectThatReturnsZeroRowsIsSuccessful", null);
+__decorate([
+    mocha_typescript_1.test,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], SqlDataConnectionExecuteTests.prototype, "executingAnInvalidCommandResultsInAnException", null);
 SqlDataConnectionExecuteTests = __decorate([
     mocha_typescript_1.suite
 ], SqlDataConnectionExecuteTests);

@@ -26,9 +26,10 @@ let SqlDataWriterTest = class SqlDataWriterTest {
     before() {
         this.mockConnection = TypeMoq.Mock.ofType();
         this.schema = simple_test_schema_builder_1.SimpleTestSchemaBuilder.buildSchema();
-        this.schemaValidator = TypeMoq.Mock.ofType();
-        this.mockSqlGenerator = TypeMoq.Mock.ofType();
-        this.dataWriter = new sql_data_writer_1.SqlDataWriter(this.mockConnection.object, this.mockSqlGenerator.object, this.schemaValidator.object);
+        this.dataValidator = TypeMoq.Mock.ofType();
+        this.mockSqlInsertGenerator = TypeMoq.Mock.ofType();
+        this.mockSqlTableGenerator = TypeMoq.Mock.ofType();
+        this.dataWriter = new sql_data_writer_1.SqlDataWriter(this.mockConnection.object, this.mockSqlInsertGenerator.object, this.mockSqlTableGenerator.object, this.dataValidator.object);
         this.mockConnection.setup(x => x.execute(TypeMoq.It.isAny())).returns(() => __awaiter(this, void 0, void 0, function* () {
             let rowsAffected = new Array();
             rowsAffected.push(1);
@@ -58,7 +59,7 @@ let SqlDataWriterTest = class SqlDataWriterTest {
             yield this.dataWriter.write(goodData).then(() => {
                 let errorOccured = null;
                 try {
-                    this.schemaValidator.verify(x => x.validate(TypeMoq.It.isAny()), TypeMoq.Times.once());
+                    this.dataValidator.verify(x => x.validate(TypeMoq.It.isAny()), TypeMoq.Times.once());
                 }
                 catch (err) {
                     errorOccured = err;

@@ -1,7 +1,7 @@
 import { WinstonLog } from '../winston-logger';
 import { Log } from '../logger';
 import { SimpleColumn, SimpleTableSchema } from './simple-schema';
-import { SimpleSchemaValidator } from './simple-schema-validator';
+import { SimpleSqlDataValidator } from './simple-sql-data-validator';
 import { SimpleSqlConfiguration } from './simple-sql-configuration';
 import { SimpleSqlDataConnection } from './simple-sql-data-connection';
 import { SimpleTestSchemaBuilder } from './simple-test-schema-builder';
@@ -10,15 +10,15 @@ import { expectException } from "../utils/misc";
 
 
 @suite
-class SimpleSchemaValidatorTest {
+class SimpleSqlSchemaValidatorTest {
 
-  private simpleSchemaValidator : SimpleSchemaValidator;
+  private simpleSchemaValidator : SimpleSqlDataValidator;
   private testData : any
   private log : Log;
 
   public before() {
     this.log = new WinstonLog();
-    this.simpleSchemaValidator = new SimpleSchemaValidator(SimpleTestSchemaBuilder.buildSchema(),this.log);
+    this.simpleSchemaValidator = new SimpleSqlDataValidator(SimpleTestSchemaBuilder.buildSchema(),this.log);
     this.testData = SimpleTestSchemaBuilder.generateData('col1', 'this is col1','Y','whole lot of text', 10);
   }
 
@@ -75,7 +75,7 @@ class SimpleSchemaValidatorTest {
     let col = new SimpleColumn('test', 500);
     schema.push(col);
     (this.testData as any).test = 'not valid since dataType is not valid';
-    this.simpleSchemaValidator = new SimpleSchemaValidator(schema, this.log);
+    this.simpleSchemaValidator = new SimpleSqlDataValidator(schema, this.log);
     expectException(() => this.simpleSchemaValidator.validate(this.testData));
   }
   

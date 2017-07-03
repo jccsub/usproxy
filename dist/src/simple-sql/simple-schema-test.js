@@ -55,38 +55,6 @@ let SimpleColumnTest = class SimpleColumnTest {
         let definition = this.findColumnByName(schema, 'name');
         var x = chai_1.expect(definition.isOptional()).to.be.false;
     }
-    getDefinitionGetsNonIdentityPrimaryKey() {
-        let column = new simple_schema_1.SimpleColumn('pk', simple_schema_1.SimpleColumnDataType.int, simple_schema_1.SimpleColumnAttributes.primaryKey);
-        column.getDefinition().toLowerCase().trim().should.equal('pk int primary key not null');
-    }
-    getDefinitionGetsIdentityPrimaryKey() {
-        let column = new simple_schema_1.SimpleColumn('col', simple_schema_1.SimpleColumnDataType.int, simple_schema_1.SimpleColumnAttributes.primaryKey | simple_schema_1.SimpleColumnAttributes.identity);
-        column.getDefinition().toLowerCase().trim().should.equal('col int primary key identity(1,1) not null');
-    }
-    getDefinitionByDefaultGetsNonNullColumn() {
-        let column = new simple_schema_1.SimpleColumn('col', simple_schema_1.SimpleColumnDataType.string255);
-        column.getDefinition().toLowerCase().trim().should.equal('col varchar(255) not null');
-    }
-    getDefinitionGetsStringTypePrimaryKey() {
-        let column = new simple_schema_1.SimpleColumn('col', simple_schema_1.SimpleColumnDataType.string1024, simple_schema_1.SimpleColumnAttributes.primaryKey);
-        column.getDefinition().toLowerCase().trim().should.equal('col varchar(1024) primary key not null');
-    }
-    getDefinitionGetsOptionalBigStringColumn() {
-        let column = new simple_schema_1.SimpleColumn('col', simple_schema_1.SimpleColumnDataType.string4096, simple_schema_1.SimpleColumnAttributes.optional);
-        column.getDefinition().toLowerCase().trim().should.equal('col varchar(4096)');
-    }
-    getDefinitionGetsOptionalMaxStringColumn() {
-        let column = new simple_schema_1.SimpleColumn('col', simple_schema_1.SimpleColumnDataType.stringMax, simple_schema_1.SimpleColumnAttributes.optional);
-        column.getDefinition().toLowerCase().trim().should.equal('col varchar(max)');
-    }
-    getDefinitionGetsOptionalCharStringColumn() {
-        let column = new simple_schema_1.SimpleColumn('col', simple_schema_1.SimpleColumnDataType.char, simple_schema_1.SimpleColumnAttributes.optional);
-        column.getDefinition().toLowerCase().trim().should.equal('col char(1)');
-    }
-    getDefinitionGetsUuidIdentityColumn() {
-        let column = new simple_schema_1.SimpleColumn('col', simple_schema_1.SimpleColumnDataType.uniqueidentifier, simple_schema_1.SimpleColumnAttributes.identity);
-        column.getDefinition().toLowerCase().trim().should.equal('col uniqueidentifier default newid()');
-    }
     findColumnByName(schemaToSearch, columnName) {
         let foundColumn = new simple_schema_1.SimpleColumn('notfound', simple_schema_1.SimpleColumnDataType.int);
         schemaToSearch.forEach((column) => {
@@ -146,54 +114,6 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], SimpleColumnTest.prototype, "isOptionalReturnsFalseForNonOptionalColumn", null);
-__decorate([
-    mocha_typescript_1.test,
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
-], SimpleColumnTest.prototype, "getDefinitionGetsNonIdentityPrimaryKey", null);
-__decorate([
-    mocha_typescript_1.test,
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
-], SimpleColumnTest.prototype, "getDefinitionGetsIdentityPrimaryKey", null);
-__decorate([
-    mocha_typescript_1.test,
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
-], SimpleColumnTest.prototype, "getDefinitionByDefaultGetsNonNullColumn", null);
-__decorate([
-    mocha_typescript_1.test,
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
-], SimpleColumnTest.prototype, "getDefinitionGetsStringTypePrimaryKey", null);
-__decorate([
-    mocha_typescript_1.test,
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
-], SimpleColumnTest.prototype, "getDefinitionGetsOptionalBigStringColumn", null);
-__decorate([
-    mocha_typescript_1.test,
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
-], SimpleColumnTest.prototype, "getDefinitionGetsOptionalMaxStringColumn", null);
-__decorate([
-    mocha_typescript_1.test,
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
-], SimpleColumnTest.prototype, "getDefinitionGetsOptionalCharStringColumn", null);
-__decorate([
-    mocha_typescript_1.test,
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
-], SimpleColumnTest.prototype, "getDefinitionGetsUuidIdentityColumn", null);
 SimpleColumnTest = __decorate([
     mocha_typescript_1.suite
 ], SimpleColumnTest);

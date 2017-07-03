@@ -3,7 +3,7 @@ import { Log } from '../logger';
 import { guarded, isJson } from '../utils/guards';
 
 
-export class SimpleSchemaValidator {
+export class SimpleSqlDataValidator {
 
   private tableSchema : SimpleTableSchema;
   private log : Log;
@@ -20,32 +20,41 @@ export class SimpleSchemaValidator {
       if (column.isIdentity()) {
         this.validateNoValueForIdentityColumn(column, data);
         return;
-      }      
-      switch(column.dataType) {
-        case SimpleColumnDataType.int : 
-          this.validateIntValue(data[column.columnName]);
-          break;        
-        case SimpleColumnDataType.string1024:
-          this.validateStringValue(data[column.columnName],1024);
-          break;        
-        case SimpleColumnDataType.string255:
-          this.validateStringValue(data[column.columnName],255);
-          break;        
-        case SimpleColumnDataType.string4096:
-          this.validateStringValue(data[column.columnName],4096);
-          break;        
-        case SimpleColumnDataType.char:
-          this.validateStringValue(data[column.columnName],1);
-          break;                  
-        case SimpleColumnDataType.stringMax:
-          this.validateStringValue(data[column.columnName]);
-          break;                
-        case SimpleColumnDataType.uniqueidentifier:        
-          this.validateUuidValue(data[column.columnName]);
-          break;
-        default: 
-          throw new Error(`SimpleSchemaValidator.validate - Unexpected column data type: ${column.dataType}`);
-      }     
+      }    
+      // tslint:disable-next-line:triple-equals
+      if (column.isOptional() && (data[column.columnName] == null)) {
+        return;
+      }
+      try {
+        switch(column.dataType) {
+          case SimpleColumnDataType.int : 
+            this.validateIntValue(data[column.columnName]);
+            break;        
+          case SimpleColumnDataType.string1024:
+            this.validateStringValue(data[column.columnName],1024);
+            break;        
+          case SimpleColumnDataType.string255:
+            this.validateStringValue(data[column.columnName],255);
+            break;        
+          case SimpleColumnDataType.string4096:
+            this.validateStringValue(data[column.columnName],4096);
+            break;        
+          case SimpleColumnDataType.char:
+            this.validateStringValue(data[column.columnName],1);
+            break;                  
+          case SimpleColumnDataType.stringMax:
+            this.validateStringValue(data[column.columnName]);
+            break;                
+          case SimpleColumnDataType.uniqueidentifier:        
+            this.validateUuidValue(data[column.columnName]);
+            break;
+          default: 
+            throw new Error(`SimpleSchemaValidator.validate - Unexpected column data type: ${column.dataType}`);
+        }  
+      }
+      catch(err) {
+        throw new Error(`validateData error on column ${column.columnName} : ${err.message} `);
+      }
     });
     return data;
   }
@@ -81,7 +90,7 @@ export class SimpleSchemaValidator {
   }
 
   private validateColumnExistence(data : any, column : SimpleColumn) {
-    if (!column.isOptional() && !data.hasOwnProperty(column.columnName)) {
+    if (!column.isOptional() && !column.isIdentity() && !data.hasOwnProperty(column.columnName)) {
       throw new Error(`SimpleSchemaValidator.validateColumnExistence - required column does not exist in the data: ${column.columnName}`);
     }
   }

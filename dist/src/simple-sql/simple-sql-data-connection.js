@@ -11,10 +11,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const sql = require('mssql');
 class SimpleSqlDataConnection {
     constructor(connectionInfo, log) {
-        // tslint:disable-next-line:triple-equals
-        if (connectionInfo == null) {
-            throw new Error('SqlDataConnection constructor expected a non-null connectionInfo');
-        }
         this.log = log;
         this.pool = null;
         this.config = connectionInfo;

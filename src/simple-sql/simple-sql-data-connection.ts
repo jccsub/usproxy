@@ -13,10 +13,6 @@ export class SimpleSqlDataConnection implements DataAccessConnection {
   private log : Log;
 
   constructor(connectionInfo: SimpleSqlConfiguration, log : Log) {
-    // tslint:disable-next-line:triple-equals
-    if (connectionInfo == null) {
-      throw new Error('SqlDataConnection constructor expected a non-null connectionInfo');
-    }
     this.log = log;
     this.pool = null;
     this.config = connectionInfo;

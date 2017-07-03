@@ -1,3 +1,12 @@
+/*
+
+isJsonValue(value)
+generateUuid()
+expectException( func : () => void )
+stripWhitespaceAndLower(text: string)
+
+*/
+
 
 export function isJsonValue(value ) {
   try {
@@ -31,4 +40,12 @@ export function expectException( func : () => void ) {
       return
     }
     throw new Error('Expected exception');
+  }
+
+export function stripWhitespaceAndLower(text: string) {
+    return text.replace(/\s/g,'').toLowerCase();
+}  
+
+export function getCommaIfNeeded(need : boolean) {
+    return need ? ',' : '';
   }

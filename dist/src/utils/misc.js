@@ -1,4 +1,12 @@
 "use strict";
+/*
+
+isJsonValue(value)
+generateUuid()
+expectException( func : () => void )
+stripWhitespaceAndLower(text: string)
+
+*/
 Object.defineProperty(exports, "__esModule", { value: true });
 function isJsonValue(value) {
     try {
@@ -33,4 +41,12 @@ function expectException(func) {
     throw new Error('Expected exception');
 }
 exports.expectException = expectException;
+function stripWhitespaceAndLower(text) {
+    return text.replace(/\s/g, '').toLowerCase();
+}
+exports.stripWhitespaceAndLower = stripWhitespaceAndLower;
+function getCommaIfNeeded(need) {
+    return need ? ',' : '';
+}
+exports.getCommaIfNeeded = getCommaIfNeeded;
 //# sourceMappingURL=misc.js.map
