@@ -1,8 +1,8 @@
 import { guarded, notNull } from '../utils/guards';
 import { RequestParser } from './request-parser';
 import { Log } from '../logger';
-import { ProxyContext } from '../proxy/proxy-context';
-import { ProxyListener } from '../proxy/proxy-listener';
+import { ProxyContext } from '../server/proxy/proxy-context';
+import { ProxyListener } from '../server/proxy/proxy-listener';
 
 import * as body from 'body';
 

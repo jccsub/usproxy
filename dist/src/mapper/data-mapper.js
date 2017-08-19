@@ -13,7 +13,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const guards_1 = require("../utils/guards");
-const proxy_context_1 = require("../proxy/proxy-context");
+const proxy_context_1 = require("../server/proxy/proxy-context");
 class DataMapper {
     constructor(parser, log) {
         this.log = log;

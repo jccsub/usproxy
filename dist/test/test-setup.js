@@ -3,9 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const request_parser_1 = require("../src/mapper/request-parser");
 const http_web_server_1 = require("../src/server/http-web-server");
 const connect_application_1 = require("../src/server/connect-application");
-const http_proxymw_server_1 = require("../src/proxy/http-proxymw-server");
-const http_proxy_mw_event_emitter_1 = require("../src/proxy/http-proxy-mw-event-emitter");
-const html_response_select_and_replace_1 = require("../src/proxy/html-response-select-and-replace");
+const http_proxymw_server_1 = require("../src/server/proxy/http-proxymw-server");
+const http_proxy_mw_event_emitter_1 = require("../src/server/proxy/http-proxy-mw-event-emitter");
+const html_response_select_and_replace_1 = require("../src/server/proxy/html-response-select-and-replace");
 const winston_logger_1 = require("../src/winston-logger");
 const data_mapper_1 = require("../src/mapper/data-mapper");
 class ContextLogger {

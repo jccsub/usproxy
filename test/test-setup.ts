@@ -1,19 +1,19 @@
 import { RequestParser } from '../src/mapper/request-parser';
-import { ProxyContext } from '../src/proxy/proxy-context';
+import { ProxyContext } from '../src/server/proxy/proxy-context';
 
 import { TestProxyPersistor } from './test-proxy-persistor';
 import { HttpWebserver } from '../src/server/http-web-server';
 import { ConnectApplication } from '../src/server/connect-application';
-import { HttpProxyMiddlewareServer } from '../src/proxy/http-proxymw-server';
-import { ProxyMWEventEmitter } from '../src/proxy/http-proxy-mw-event-emitter';
+import { HttpProxyMiddlewareServer } from '../src/server/proxy/http-proxymw-server';
+import { ProxyMWEventEmitter } from '../src/server/proxy/http-proxy-mw-event-emitter';
 import {
   HtmlResponseSelectAndReplace,
   HtmlResponseSelectAndReplaceFactory
-} from '../src/proxy/html-response-select-and-replace';
+} from '../src/server/proxy/html-response-select-and-replace';
 import { WinstonLog } from '../src/winston-logger';
 import { Log } from '../src/logger';
 import { read, readdir, readdirSync } from 'fs';
-import { ProxyListener } from '../src/proxy/proxy-listener';
+import { ProxyListener } from '../src/server/proxy/proxy-listener';
 import { DataMapper } from "../src/mapper/data-mapper";
 
 

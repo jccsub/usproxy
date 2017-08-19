@@ -1,8 +1,8 @@
 import { TestSetup } from './test-setup';
-import { SelectAndReplaceType, SelectAndReplaceItem } from '../src/proxy/response-select-and-replace';
+import { SelectAndReplaceType, SelectAndReplaceItem } from '../src/server/proxy/response-select-and-replace';
 import { WinstonLog } from '../src/winston-logger';
-import { ProxyListener } from '../src/proxy/proxy-listener';
-import { ProxyContext } from '../src/proxy/proxy-context';
+import { ProxyListener } from '../src/server/proxy/proxy-listener';
+import { ProxyContext } from '../src/server/proxy/proxy-context';
 import { Log } from '../src/logger';
 
 
@@ -12,7 +12,7 @@ export class HttpBinTestSetup extends TestSetup {
 
     constructor() {
       super('https://httpbin.org/', 8001);
-      log.debug('HttpBinTestSetup');
+      log.debug('HttpBinTestSetup -> Navigate to http://localhost:8001 to test');
       this.errorListeners.push(new TestErrorProxyListner());
       this.requestListeners.push(new TestRequestProxyListener());
       this.responseListeners.push(new TestResponseProxyListener());

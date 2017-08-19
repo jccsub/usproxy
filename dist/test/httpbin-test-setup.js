@@ -1,13 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const test_setup_1 = require("./test-setup");
-const response_select_and_replace_1 = require("../src/proxy/response-select-and-replace");
+const response_select_and_replace_1 = require("../src/server/proxy/response-select-and-replace");
 const winston_logger_1 = require("../src/winston-logger");
 var log = new winston_logger_1.WinstonLog();
 class HttpBinTestSetup extends test_setup_1.TestSetup {
     constructor() {
         super('https://httpbin.org/', 8001);
-        log.debug('HttpBinTestSetup');
+        log.debug('HttpBinTestSetup -> Navigate to http://localhost:8001 to test');
         this.errorListeners.push(new TestErrorProxyListner());
         this.requestListeners.push(new TestRequestProxyListener());
         this.responseListeners.push(new TestResponseProxyListener());

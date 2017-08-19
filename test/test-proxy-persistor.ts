@@ -1,7 +1,7 @@
-import { ProxyContext } from '../src/proxy/proxy-context';
+import { ProxyContext } from '../src/server/proxy/proxy-context';
 import { Log } from '../src/logger';
 
-import { ProxyContextPersistor } from "../src/proxy/proxy-context-persistor";
+import { ProxyContextPersistor } from "../src/server/proxy/proxy-context-persistor";
 
 export class TestProxyPersistor implements ProxyContextPersistor {
 

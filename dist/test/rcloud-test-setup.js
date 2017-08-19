@@ -1,13 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const winston_logger_1 = require("../src/winston-logger");
-const response_select_and_replace_1 = require("../src/proxy/response-select-and-replace");
+const response_select_and_replace_1 = require("../src/server/proxy/response-select-and-replace");
 const test_setup_1 = require("./test-setup");
 var log = new winston_logger_1.WinstonLog();
 class RCloudTestSetup extends test_setup_1.TestSetup {
     constructor() {
         super('http://jccsubweb.newgen.corp', 8001);
-        log.debug('RCloudTestSetup');
+        log.debug('RCloudTestSetup  -> Navigate to http://localhost:8001 to test');
         this.responseSelectAndReplaceListeners.push(new TestResponseSelectAndReplaceListener());
     }
 }
