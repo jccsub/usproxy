@@ -14,9 +14,9 @@ class OnionTestSetup {
     startTest() {
         this.log = new winston_logger_1.WinstonLog();
         this.configuration.modifications = [
-            new infusion_modification_1.InfusionModification('h1', '<h1>Replaced Title!!</h1>', infusion_modification_1.InfusionModificationType.Replace)
+            new infusion_modification_1.InfusionModification('h1', '<h1>Replaced Title!!</h1>', infusion_modification_1.InfusionModificationType.Replace, /.*/)
         ];
-        this.markupModifier = new markup_modifier_1.MarkupModifier(this.configuration);
+        this.markupModifier = new markup_modifier_1.MarkupModifier(this.log, this.configuration);
         this.proxyService = new proxy_service_1.ProxyService(this.log, this.markupModifier, this.configuration);
         this.proxyService.listen(target, port);
     }

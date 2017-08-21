@@ -14,12 +14,15 @@ export class InfusionModification {
 
   public readonly cssQuery : string;
 
+  public readonly urlPattern : RegExp;
+
   public readonly modificationType : InfusionModificationType;
 
-  constructor(cssQuery : string, newMarkup : string, modificationType : InfusionModificationType) {
+  constructor(cssQuery : string, newMarkup : string, modificationType : InfusionModificationType, urlPattern : RegExp) {
     this.newMarkup = newMarkup;
     this.cssQuery = cssQuery;
     this.modificationType = modificationType;
+    this.urlPattern = urlPattern;
   }
 
   public convertToQueryFunction()  : ModificationQueryFunction {

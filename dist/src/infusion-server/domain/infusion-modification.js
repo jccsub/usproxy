@@ -6,10 +6,11 @@ var InfusionModificationType;
     InfusionModificationType[InfusionModificationType["Append"] = 1] = "Append";
 })(InfusionModificationType = exports.InfusionModificationType || (exports.InfusionModificationType = {}));
 class InfusionModification {
-    constructor(cssQuery, newMarkup, modificationType) {
+    constructor(cssQuery, newMarkup, modificationType, urlPattern) {
         this.newMarkup = newMarkup;
         this.cssQuery = cssQuery;
         this.modificationType = modificationType;
+        this.urlPattern = urlPattern;
     }
     convertToQueryFunction() {
         let select = {};

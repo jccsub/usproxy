@@ -3,7 +3,10 @@ import { InfusionRequest } from './infusion-request';
 import { InfusionResponse } from './infusion-response';
 import { Log } from '../../logger';
 
-
+export enum InfusionContextDirection {
+  Request,
+  Response
+}
 export class InfusionContext {
   public response : InfusionResponse = new InfusionResponse();
   
@@ -15,6 +18,7 @@ export class InfusionContext {
   
     public error : Error;
   
+    public direction : InfusionContextDirection;
  
     private log : Log;
     constructor(log : Log) {

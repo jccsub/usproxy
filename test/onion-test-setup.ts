@@ -23,9 +23,9 @@ export class OnionTestSetup  {
   public startTest() {
     this.log = new WinstonLog();
     this.configuration.modifications =  [
-      new InfusionModification('h1','<h1>Replaced Title!!</h1>',InfusionModificationType.Replace)
+      new InfusionModification('h1','<h1>Replaced Title!!</h1>',InfusionModificationType.Replace,/.*/)
     ];
-    this.markupModifier = new MarkupModifier(this.configuration);
+    this.markupModifier = new MarkupModifier(this.log,this.configuration);
     this.proxyService = new ProxyService(this.log, this.markupModifier, this.configuration );
     this.proxyService.listen(target, port);
   }

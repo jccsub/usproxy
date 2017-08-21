@@ -1,3 +1,5 @@
+import { InfusionContext, InfusionContextDirection } from '../domain/infusion-context';
+import * as events from 'events';
 import { MarkupModifier } from './markup-modifier';
 import { InfusionConfiguration } from '../domain/infusion-configuration';
 import { ModificationQueryFunction } from '../domain/infusion-modification';
@@ -12,7 +14,7 @@ import { Log } from '../../logger';
 import * as proxy from 'http-proxy-middleware';
 import * as connect from 'connect';
 
-export class ProxyService {
+export class ProxyService extends events.EventEmitter{
   private markupModifier: MarkupModifier;
   private log: Log;
   private proxy : any;  
@@ -21,6 +23,7 @@ export class ProxyService {
   private configuration : InfusionConfiguration;
   
   constructor(log : Log, markupModifier : MarkupModifier, configuration : InfusionConfiguration) {
+    super();
     this.log = log;
     this.configuration = configuration;
     this.connectApp = connect();
@@ -50,10 +53,16 @@ export class ProxyService {
       },
       onError : (err, req, res) => { new InfusionErrorHandler(this.log).handle(err, req, res); },
       onProxyRes : (proxyRes,req,res) => { 
-        this.markupModifier.performModifications(req, res);
+        this.markupModifier.performModifications(((req as any).context as InfusionContext).request.fullUrl, req, res);
         new InfusionProxyResponseHandler(this.log).handle(proxyRes, req, res);
+        ((req  as any).context as InfusionContext).direction = InfusionContextDirection.Response;
+        this.emit('context', req.context);
       },
-      onProxyReq : (proxyReq, req, res) => { new InfusionProxyRequestHandler(this.log).handle(proxyReq, req, res);}
+      onProxyReq : (proxyReq, req, res) => { 
+        new InfusionProxyRequestHandler(this.log).handle(proxyReq, req, res);
+        (req.context as InfusionContext).direction = InfusionContextDirection.Request;
+        this.emit('context', req.context);
+      }
     });
   }
 

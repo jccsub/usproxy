@@ -19,6 +19,7 @@ export class InfusionProxyRequestHandler {
 
   private setupRequestHandler(req : any, context : InfusionContext) {
     let reqHandler = new InfusionRequestHandler(this.log,req,context);
+    req.context = context;
     req.on('data',(chunk) => { reqHandler.onData(chunk); })
     req.on('end',() => reqHandler.onEnd());
   }

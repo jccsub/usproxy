@@ -2,6 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const infusion_request_1 = require("./infusion-request");
 const infusion_response_1 = require("./infusion-response");
+var InfusionContextDirection;
+(function (InfusionContextDirection) {
+    InfusionContextDirection[InfusionContextDirection["Request"] = 0] = "Request";
+    InfusionContextDirection[InfusionContextDirection["Response"] = 1] = "Response";
+})(InfusionContextDirection = exports.InfusionContextDirection || (exports.InfusionContextDirection = {}));
 class InfusionContext {
     constructor(log) {
         this.response = new infusion_response_1.InfusionResponse();
