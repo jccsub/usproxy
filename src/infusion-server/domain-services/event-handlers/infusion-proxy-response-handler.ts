@@ -1,3 +1,4 @@
+import { InfusionContext } from '../../domain/infusion-context';
 import { InfusionConfiguration } from '../../domain/infusion-configuration';
 import { InfusionResponseHandler } from './infusion-response-handler';
 import { Log } from '../../../logger';
@@ -13,9 +14,17 @@ export class InfusionProxyResponseHandler {
   public handle(proxyRes : any, req : any, res : any) {
     this.log.debug(`InfusionProxyResponseHandler.handle`);
 
-    let resHandler = new InfusionResponseHandler(this.log);    
+    let context = ((req as any).context as InfusionContext);
+    
+    // tslint:disable-next-line:triple-equals
+    if (context == null) {
+      throw new Error('InfusionProxyResponseHandler.handle - req.context cannot be null');
+    }
+        
 
-    proxyRes.on('data',(chunk) => {
+    let resHandler = new InfusionResponseHandler(this.log, context, proxyRes);    
+
+    proxyRes.on('data',(chunk) => {      
       resHandler.onData(chunk);
     });
 

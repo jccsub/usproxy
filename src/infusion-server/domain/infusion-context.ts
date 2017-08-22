@@ -19,6 +19,10 @@ export class InfusionContext {
     public error : Error;
   
     public direction : InfusionContextDirection;
+
+    public user : string;
+
+
  
     private log : Log;
     constructor(log : Log) {
@@ -37,8 +41,8 @@ export class InfusionContext {
       result += `\n\trequest-body: ${this.request.body}`;
       result += `\n\trequest-url: ${this.request.fullUrl}`;
       result += `\n\trequest-method: ${this.request.method}`;
+      result += `\n\trequest-sessionId: ${this.request.sessionId}`;
       result += `\n\tresponse-headers: ${JSON.stringify(this.response.headers)}`;
-      result += `\n\tdataMap:`;
       result += '\n---------------------------------------'
       return result;
     }

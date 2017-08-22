@@ -15,5 +15,7 @@ export class InfusionContextWriterConfiguration {
 }
 
 export interface InfusionContextWriter {
-  write(config : InfusionContextWriterConfiguration,  context : InfusionContext);
+
+  initialize();
+  write(context : InfusionContext);
 }

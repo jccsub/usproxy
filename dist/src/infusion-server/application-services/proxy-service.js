@@ -10,9 +10,10 @@ const http = require("http");
 const proxy = require("http-proxy-middleware");
 const connect = require("connect");
 class ProxyService extends events.EventEmitter {
-    constructor(log, markupModifier, configuration) {
+    constructor(log, markupModifier, writer, configuration) {
         super();
         this.log = log;
+        this.writer = writer;
         this.configuration = configuration;
         this.connectApp = connect();
         this.markupModifier = markupModifier;
@@ -26,7 +27,8 @@ class ProxyService extends events.EventEmitter {
     createProxyServer(target) {
         return proxy('/', {
             target: target,
-            changeOrigin: true,
+            //   changeOrigin : true,
+            agent: new http.Agent({ keepAlive: true }),
             logLevel: this.log.level,
             pathRewrite: (path, req) => {
                 this.log.debug(`ProxyService.setupProxyService.pathRewrite, path=${path}`);
@@ -37,17 +39,21 @@ class ProxyService extends events.EventEmitter {
                     return req.newPath;
                 }
             },
-            onError: (err, req, res) => { new infusion_error_handler_1.InfusionErrorHandler(this.log).handle(err, req, res); },
+            onError: (err, req, res) => { this.log.debug(`onError`); new infusion_error_handler_1.InfusionErrorHandler(this.log).handle(err, req, res); },
             onProxyRes: (proxyRes, req, res) => {
+                this.log.debug(`onProxyRes`);
                 this.markupModifier.performModifications(req.context.request.fullUrl, req, res);
                 new infusion_proxy_response_handler_1.InfusionProxyResponseHandler(this.log).handle(proxyRes, req, res);
                 req.context.direction = infusion_context_1.InfusionContextDirection.Response;
-                this.emit('context', req.context);
+                //this.emit('context', req.context);
+                this.writer.write(req.context);
+                this.log.debug(req.context.toString());
             },
             onProxyReq: (proxyReq, req, res) => {
+                this.log.debug(`onProxyReq`);
                 new infusion_proxy_request_handler_1.InfusionProxyRequestHandler(this.log).handle(proxyReq, req, res);
                 req.context.direction = infusion_context_1.InfusionContextDirection.Request;
-                this.emit('context', req.context);
+                //this.emit('context', req.context);
             }
         });
     }

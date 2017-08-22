@@ -8,4 +8,5 @@ export class InfusionRequest {
   public host: string;
   public get fullUrl() { return `${this.protocol}://${this.host}${this.url}`;}
   public method : string;  
+  public sessionId : string;
 }

@@ -1,3 +1,4 @@
+import { InfusionContextWriter } from '../domain-services/infusion-context-writer';
 import { InfusionContext, InfusionContextDirection } from '../domain/infusion-context';
 import * as events from 'events';
 import { MarkupModifier } from './markup-modifier';
@@ -19,12 +20,13 @@ export class ProxyService extends events.EventEmitter{
   private log: Log;
   private proxy : any;  
   private connectApp;
-
   private configuration : InfusionConfiguration;
+  private writer : InfusionContextWriter;
   
-  constructor(log : Log, markupModifier : MarkupModifier, configuration : InfusionConfiguration) {
+  constructor(log : Log, markupModifier : MarkupModifier, writer : InfusionContextWriter, configuration : InfusionConfiguration) {
     super();
     this.log = log;
+    this.writer = writer;
     this.configuration = configuration;
     this.connectApp = connect();
     this.markupModifier = markupModifier;
@@ -40,7 +42,8 @@ export class ProxyService extends events.EventEmitter{
   private createProxyServer(target : string) {
     return proxy('/', {
       target : target,
-      changeOrigin : true,
+   //   changeOrigin : true,
+      agent : new http.Agent({keepAlive: true}),
       logLevel : this.log.level,
       pathRewrite: (path,req) => {
         this.log.debug(`ProxyService.setupProxyService.pathRewrite, path=${path}`);
@@ -51,17 +54,21 @@ export class ProxyService extends events.EventEmitter{
           return req.newPath;
         }
       },
-      onError : (err, req, res) => { new InfusionErrorHandler(this.log).handle(err, req, res); },
+      onError : (err, req, res) => {this.log.debug(`onError`); new InfusionErrorHandler(this.log).handle(err, req, res); },
       onProxyRes : (proxyRes,req,res) => { 
+        this.log.debug(`onProxyRes`);
         this.markupModifier.performModifications(((req as any).context as InfusionContext).request.fullUrl, req, res);
         new InfusionProxyResponseHandler(this.log).handle(proxyRes, req, res);
         ((req  as any).context as InfusionContext).direction = InfusionContextDirection.Response;
-        this.emit('context', req.context);
+        //this.emit('context', req.context);
+        this.writer.write((req  as any).context as InfusionContext);
+        this.log.debug(((req  as any).context as InfusionContext).toString());
       },
       onProxyReq : (proxyReq, req, res) => { 
+        this.log.debug(`onProxyReq`);
         new InfusionProxyRequestHandler(this.log).handle(proxyReq, req, res);
         (req.context as InfusionContext).direction = InfusionContextDirection.Request;
-        this.emit('context', req.context);
+        //this.emit('context', req.context);
       }
     });
   }

@@ -7,7 +7,12 @@ class InfusionProxyResponseHandler {
     }
     handle(proxyRes, req, res) {
         this.log.debug(`InfusionProxyResponseHandler.handle`);
-        let resHandler = new infusion_response_handler_1.InfusionResponseHandler(this.log);
+        let context = req.context;
+        // tslint:disable-next-line:triple-equals
+        if (context == null) {
+            throw new Error('InfusionProxyResponseHandler.handle - req.context cannot be null');
+        }
+        let resHandler = new infusion_response_handler_1.InfusionResponseHandler(this.log, context, proxyRes);
         proxyRes.on('data', (chunk) => {
             resHandler.onData(chunk);
         });

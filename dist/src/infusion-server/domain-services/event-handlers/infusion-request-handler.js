@@ -16,13 +16,28 @@ class InfusionRequestHandler {
     onEnd() {
         this.log.debug(`InfusionRequestHandler.onEnd`);
         this.populateContextWithReq(this.context, this.req);
-        this.log.debug(this.context.toString());
+    }
+    getCookiesFromRequest(req) {
+        try {
+            let cookieMap = new Map();
+            req.headers['cookie'].split(';').forEach(element => {
+                let keyValuePair = element.split('=');
+                cookieMap[keyValuePair[0].trim()] = keyValuePair[1].trim();
+            });
+            return cookieMap;
+        }
+        catch (exception) {
+            return new Map();
+        }
     }
     populateContextWithReq(context, req) {
         this.context.request.url = this.req.url;
         this.context.request.host = this.req.headers.host;
-        this.context.request.protocol = 'http';
+        this.context.request.protocol = (this.req.connection.encrypted) ? 'https' : 'http';
         this.context.request.method = this.req.method;
+        let cookieMap = this.getCookiesFromRequest(req);
+        this.context.request.sessionId = cookieMap['ASP.NET_SessionId'];
+        //this.print(this.req.headers);   
     }
 }
 exports.InfusionRequestHandler = InfusionRequestHandler;
